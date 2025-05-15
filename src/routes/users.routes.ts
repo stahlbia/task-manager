@@ -1,12 +1,15 @@
 import z from 'zod';
-import { FastifyTypeInstance } from "../utils/fastifyTypeInstance";
+import { FastifyTypeInstance } from "../utils/types";
 import { randomUUID } from 'node:crypto';
-import { userSchema, User } from '../schemas/user.schema';
+import { userSchema, UserInput } from '../schemas/user.schema';
+import bcrypt from 'bcryptjs';
+import { error } from 'node:console';
 
 // simulacao do banco
-const users: User[] = []
+export const usersTableSim: UserInput[] = []
+const SALT_ROUNDS = 10
 
-export async function routes(app: FastifyTypeInstance) {
+export async function userRoutes(app: FastifyTypeInstance) {
     app.get('/users', {
         schema: { // esquema que aparecera na documentacao
             tags: ['users'], // tag para agrupar requests para users
@@ -20,7 +23,7 @@ export async function routes(app: FastifyTypeInstance) {
             }
         }
     }, () => {
-        return users
+        return usersTableSim
     })
 
     app.post('/users', {
@@ -30,22 +33,36 @@ export async function routes(app: FastifyTypeInstance) {
             body: z.object({
                 name: z.string(),
                 email: z.string().email(),
+                password: z.string().min(8),
             }),
             response: {
                 201: userSchema.describe('Created user'),
+                401: z.object({ message: z.string() }).describe('User already exists'),
+                500: z.object({ message: z.string() }).describe('Internal server error'),
             }
         }
     }, async (req, rep) => {
-        const { name, email } = req.body
+        const { name, email, password } = req.body
 
-        const newUser: User = {
-            id: randomUUID(),
-            name,
-            email,
+
+        const user = usersTableSim.find((user) => user.email === email)
+        if (user) {
+            return rep.status(401).send({ message: 'User already exists' })
         }
 
-        users.push(newUser)
+        try {
+            const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS)
+            const user: UserInput = {
+                id: randomUUID(),
+                name,
+                email,
+                password: hashedPassword,
+            }
+            usersTableSim.push(user)
 
-        return rep.status(201).send(newUser)
+            return rep.status(201).send(user)
+        } catch (e) {
+            return rep.status(500).send({ message: 'Internal server error' });
+        }
     })
 }

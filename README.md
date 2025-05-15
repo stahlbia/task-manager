@@ -24,6 +24,7 @@ nvm install node
 ```
 
 ## Inicializando
+
 Clonar o repositório
 
 ``` sh
@@ -116,25 +117,53 @@ project-root/
 ## Stack do Projeto
 
 ### 🟩 Node.js
+
 Plataforma de execução JavaScript no servidor, escolhida por sua leveza, ecossistema maduro e excelente performance para APIs HTTP.
 
 ### 🟦 TypeScript
+
 Superset do JavaScript que adiciona tipagem estática ao código, aumentando a segurança, legibilidade e produtividade durante o desenvolvimento.
 
 ### ⚡ Fastify
+
 Framework web focado em performance e baixo consumo de recursos, ideal para criar APIs rápidas, com suporte nativo a schemas, plugins e integração com Swagger.
 
 ### 🧪 Zod
+
 Biblioteca de validação de dados com foco em **tipagem integrada ao TypeScript**, usada para validar entradas da API (body, params, query) e gerar schemas reutilizáveis.
 
 ### 📚 Swagger
+
 Ferramenta de documentação automática da API, permitindo que os endpoints sejam visualizados e testados via navegador com base nos schemas definidos em Zod.
 
 ### 🐘 PostgreSQL
+
 Banco de dados relacional robusto, usado para persistir dados de forma segura, escalável e confiável. Ideal para sistemas com múltiplas entidades e relacionamentos.
 
 ### ✅ Jest
+
 Framework de testes em JavaScript/TypeScript, utilizado para escrever e executar testes automatizados garantindo o funcionamento correto das funcionalidades da API.
 
 ### 🌐 Open
+
 Pacote usado para abrir automaticamente a URL do servidor no navegador assim que a API sobe, facilitando o acesso durante o desenvolvimento local.
+
+## Tarefas para fazer
+
+Emanu:
+
+- [ ] Implementar o banco de dados com PostgreSQL (quem sabe através de migrations) -> Emanuzita
+- [ ] Implementar API CRUD para comentários de taferas -> Emanuzita
+- [ ] Implementar testes unitários - Emanuzita
+
+Gabriela:
+
+- [ ] Implementar API CRUD para usuários -> Gabrela
+- [ ] Implementar API CRUD para tarefas -> Gabrela
+- [ ] Implementar testes de integração - Gabrela
+
+Bia:
+
+- [ ] Implementar API CRUD para autenticação -> Bia
+- [ ] Definir business cases para roles -> Bia
+- [ ] Definir happy paths para cada role -> Bia
