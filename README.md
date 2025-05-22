@@ -50,56 +50,65 @@ npm start
 project-root/
 │
 ├── src/
-│   ├── controllers/           # Lógica dos endpoints HTTP
+│   ├── controllers/             # Lógica dos endpoints HTTP
 │   │   ├── auth.controller.ts
 │   │   ├── task.controller.ts
 │   │   └── user.controller.ts
 │
-│   ├── routes/                # Registro das rotas no Fastify
+│   ├── routes/                  # Registro das rotas no Fastify
 │   │   ├── auth.routes.ts
 │   │   ├── task.routes.ts
 │   │   └── user.routes.ts
 │
-│   ├── schemas/               # Validação e tipagem com Zod
+│   ├── schemas/                 # Validação e tipagem com Zod
 │   │   ├── task.schema.ts
 │   │   ├── user.schema.ts
 │   │   └── auth.schema.ts
 │
-│   ├── models/                # Mapeamento de dados (ORM ou SQL)
+│   ├── models/                  # Mapeamento de dados (ORM ou SQL)
 │   │   ├── task.model.ts
 │   │   ├── user.model.ts
 │   │   └── comment.model.ts
 │
-│   ├── services/              # Regras de negócio (camada intermediária)
+│   ├── services/                # Regras de negócio (camada intermediária)
 │   │   ├── task.service.ts
 │   │   ├── user.service.ts
-│   │   └── auth.service.ts
+│   │   ├── auth.service.ts
+│   │   └── notification.service.ts   # Novo serviço para envio de notificações por e-mail
 │
-│   ├── db/                    # Conexão com o banco (PostgreSQL)
-│   │   ├── client.ts          # Ex: usando Prisma ou pg
-│   │   └── migrations/        # (opcional) SQL ou ORM migrations
+│   ├── notifications/           # Lógica de envio de e-mails (integração com SMTP, Mailgun, etc)
+│   │   ├── emailClient.ts        # Configuração do transporte de e-mails (nodemailer, etc)
+│   │   └── templates/            # Templates de e-mail (HTML/TXT)
+│   │       ├── taskUpdated.html
+│   │       └── welcomeUser.html
 │
-│   ├── middlewares/           # Autenticação, erros, permissões
+│   ├── db/                      # Conexão com o banco (PostgreSQL)
+│   │   ├── client.ts
+│   │   └── migrations/
+│
+│   ├── middlewares/             # Autenticação, erros, permissões
 │   │   ├── auth.middleware.ts
 │   │   └── error.middleware.ts
 │
-│   ├── plugins/               # Plugins do Fastify (CORS, JWT, etc)
+│   ├── plugins/                 # Plugins do Fastify (CORS, JWT, etc)
 │   │   ├── auth.plugin.ts
 │   │   ├── swagger.plugin.ts
 │   │   └── zod.plugin.ts
 │
-│   ├── openapi/               # Arquivos OpenAPI/Swagger
-│   │   └── openapi.yaml       # Pode ser usado com fastify-swagger
+│   ├── openapi/                 # Arquivos OpenAPI/Swagger
+│   │   └── openapi.yaml
 │
-│   ├── utils/                 # Helpers, formatação, tokens, etc.
-│   │   └── jwt.ts
+│   ├── utils/                   # Helpers, formatação, tokens, etc.
+│   │   ├── jwt.ts
+│   │   └── formatDate.ts
 │
-│   ├── app.ts                 # Criação e configuração do Fastify
-│   └── server.ts              # Inicia o servidor
+│   ├── app.ts                   # Criação e configuração do Fastify
+│   └── server.ts                # Inicia o servidor
 │
-├── tests/                     # Testes com Jest
+├── tests/                       # Testes com Jest
 │   ├── unit/
-│   │   └── task.service.test.ts
+│   │   ├── task.service.test.ts
+│   │   └── notification.service.test.ts
 │   └── integration/
 │       └── task.routes.test.ts
 │
@@ -112,7 +121,38 @@ project-root/
 
 ## Estrutura do Banco de Dados
 
-![alt text](docs/images/db-logic.png)
+![alt text](docs/images/image.png)
+
+### users table
+
+- user_id: string, required, uuid, unique
+- name: string
+- email: string, required, unique
+- password_hash: string, required
+- password_salt: string, required
+- updated_at: timestamp, required
+- created_at: timestamp, required
+
+### tasks table
+
+- task_id: string, required, uuid, unique
+- title: string, required
+- description: string
+- created_at: timestamp, required
+- updated_at: timestamp, required
+- status: string, required
+- created_by: string, uuid, required, FK from users_table
+- assigned_to: string, uuid, required, FK from users_table
+
+### comments table
+
+- comment_id: string, required, uuid, unique
+- content: string, required
+- created_at: timestamp, required
+- updated_at: timestamp, required
+- task_id: string, uuid, required, FK from tasks_table
+- user_id: string, uuid, required, FK from users_table
+
 
 ## Stack do Projeto
 
@@ -144,9 +184,45 @@ Banco de dados relacional robusto, usado para persistir dados de forma segura, e
 
 Framework de testes em JavaScript/TypeScript, utilizado para escrever e executar testes automatizados garantindo o funcionamento correto das funcionalidades da API.
 
-### 🌐 Open
+## Construção da API - Endpoints
 
-Pacote usado para abrir automaticamente a URL do servidor no navegador assim que a API sobe, facilitando o acesso durante o desenvolvimento local.
+### users
+
+- GET       http://{{host}}/api/v1/users
+- GET       http://{{host}}/api/v1/users{user_id}
+- POST      http://{{host}}/api/v1/users
+- PATCH     http://{{host}}/api/v1/users{user_id}
+- DELETE    http://{{host}}/api/v1/users{user_id}
+
+### tasks / comments
+
+- GET       http://{{host}}/api/v1/tasks
+- GET       http://{{host}}/api/v1/tasks{task_id}
+- GET       http://{{host}}/api/v1/tasks{task_id}/comments
+- GET       http://{{host}}/api/v1/tasks{task_id}/comments/{comment_id}
+- POST      http://{{host}}/api/v1/tasks
+- POST      http://{{host}}/api/v1/tasks{task_id}/comments
+- PATCH     http://{{host}}/api/v1/tasks{task_id}
+- PATCH     http://{{host}}/api/v1/tasks{task_id}/comments/{comment_id}
+- DELETE    http://{{host}}/api/v1/tasks{task_id}
+- DELETE    http://{{host}}/api/v1/tasks{task_id}/comments/{comment_id}
+
+### auth
+
+- POST      http://{{host}}/api/v1/auth/login
+- POST      http://{{host}}/api/v1/auth/logout
+
+## User's Happy Paths
+
+1. Criar uma conta
+2. Fazer login
+3. Criar uma tarefa com o nome "Entregar trabalho da faculadade"
+4. Verificar a lista de tarefas
+5. Adicionar um comentário na tarefa criada que diz "Focar na parte teórica"
+6. Atualizar o status da tarefa para "in progress"
+7. Adicionar outro comentário na tarefa dizendo "Focar na parte prática"
+8. Atualizar o status da tarefa para "done"
+9. Fazer logout do sistema
 
 ## Tarefas para fazer
 
@@ -164,6 +240,6 @@ Gabriela:
 
 Bia:
 
-- [ ] Implementar API CRUD para autenticação -> Bia
-- [ ] Definir business cases para roles -> Bia
-- [ ] Definir happy paths para cada role -> Bia
+- [X] Implementar API para autenticação -> Bia
+- [X] Definir happy paths -> Bia
+- [ ] Implementar notificação através de emails
