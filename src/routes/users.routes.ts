@@ -11,20 +11,37 @@ const SALT_ROUNDS = 10
 
 export async function userRoutes(app: FastifyTypeInstance) {
     app.get('/users', {
-        schema: { // esquema que aparecera na documentacao
-            tags: ['users'], // tag para agrupar requests para users
-            description: 'List users', // descricao do que o metodo faz nessa rota
-            response: { // estruturas de respostas que a rota entrega para cada http code
-                200: z.array(z.object({
-                    id: z.string(),
-                    name: z.string(),
-                    email: z.string(),
-                }))
-            }
+      schema: {
+        tags: ['users'],
+        description: 'List users',
+        response: {
+          200: z.array(userSchema.omit({ password: true })),
         }
+      }
     }, () => {
-        return usersTableSim
-    })
+      return usersTableSim.filter(u => !u.deleted).map(({ password, ...rest }) => rest); //soft delete
+    });
+
+    app.get('/users/:id', {
+        schema: {
+            tags: ['users'],
+            description: 'Get an user by ID',
+            response: {
+                200: userSchema.omit({ password: true}),
+                404: z.object({ message: z.string() }).describe('User not found'),
+            },
+        }
+    }, (req, rep) => {
+        const {id} = req.param as {id: string};
+        const user = usersTableSim.find(u => u.id === id && !u.deleted);
+
+        if(!user)
+            return rep.status(404).send({ message: 'User not found'});
+
+        const { password, ...userWithoutPassowrd } = user;
+        return rep.send(userWithoutPassowrd);
+    });
+
 
     app.post('/users', {
         schema: {
@@ -64,5 +81,63 @@ export async function userRoutes(app: FastifyTypeInstance) {
         } catch (e) {
             return rep.status(500).send({ message: 'Internal server error' });
         }
-    })
-}
+    });
+
+    app.put('/users/:id', {
+        schema: {
+          tags: ['users'],
+          description: 'Update a user',
+          params: z.object({
+            id: z.string(),
+          }),
+          body: z.object({
+            name: z.string().optional(),
+            email: z.string().email().optional(),
+            password: z.string().min(8).optional(),
+          }),
+          response: {
+            200: userSchema.omit({ password: true }),
+            404: z.object({ message: z.string() }).describe('User not found'),
+          },
+        }
+      }, async (req, rep) => {
+        const { id } = req.params as { id: string };
+        const { name, email, password } = req.body as Partial<UserInput>;
+    
+        const user = usersTableSim.find(u => u.id === id && !u.deleted);
+        if (!user) {
+          return rep.status(404).send({ message: 'User not found' });
+        }
+    
+        if (name) user.name = name;
+        if (email) user.email = email;
+        if (password) user.password = await bcrypt.hash(password, SALT_ROUNDS);
+    
+        const { password: _, ...userWithoutPassword } = user;
+        return rep.send(userWithoutPassword);
+      });
+    
+      app.delete('/users/:id', {
+        schema: {
+          tags: ['users'],
+          description: 'Soft delete a user',
+          params: z.object({
+            id: z.string(),
+          }),
+          response: {
+            204: z.null(),
+            404: z.object({ message: z.string() }).describe('User not found'),
+          },
+        }
+      }, (req, rep) => {
+        const { id } = req.params as { id: string };
+        const user = usersTableSim.find(u => u.id === id && !u.deleted);
+    
+        if (!user) {
+          return rep.status(404).send({ message: 'User not found' });
+        }
+    
+        user.deleted = true;
+        return rep.status(204).send();
+      });
+    }
