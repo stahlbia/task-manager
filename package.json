@@ -15,7 +15,9 @@
     "bcryptjs": "^3.0.2",
     "fastify": "^5.3.2",
     "fastify-type-provider-zod": "^4.0.2",
+    "knex": "^3.1.0",
     "open": "^10.1.2",
+    "pg": "^8.16.0",
     "zod": "^3.24.4"
   },
   "devDependencies": {
@@ -27,7 +29,10 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.json",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "db:migrate:make": "npx knex migrate:make --migrations-directory ./src/db/migrations",
+    "db:migrate:latest": "npx knex migrate:latest --knexfile knexfile.js",
+    "db:migrate:rollback": "npx knex migrate:rollback --knexfile knexfile.js"
   },
   "repository": {
     "type": "git",
