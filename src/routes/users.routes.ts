@@ -31,8 +31,8 @@ export async function userRoutes(app: FastifyTypeInstance) {
                 404: z.object({ message: z.string() }).describe('User not found'),
             },
         }
-    }, (req, rep) => {
-        const {id} = req.param as {id: string};
+    }, async (req, rep) => {
+        const {id} = req.params as {id: string};
         const user = usersTableSim.find(u => u.id === id && !u.deleted);
 
         if(!user)
@@ -129,7 +129,7 @@ export async function userRoutes(app: FastifyTypeInstance) {
             404: z.object({ message: z.string() }).describe('User not found'),
           },
         }
-      }, (req, rep) => {
+      },async (req, rep) => {
         const { id } = req.params as { id: string };
         const user = usersTableSim.find(u => u.id === id && !u.deleted);
     

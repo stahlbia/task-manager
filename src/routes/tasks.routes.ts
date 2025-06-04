@@ -1,8 +1,8 @@
 import z from 'zod';
 import { FastifyTypeInstance } from '../utils/types';
 import { randomUUID } from 'node:crypto';
-import { taskSchema, TaskInput } from '../schemas/task.schema';
-import { usersTableSim } from './user.routes';
+import { taskSchema, TaskInput } from '../schemas/tasks.schema';
+import { usersTableSim } from './users.routes';
 
 // Simulação do "banco" de tarefas
 export const tasksTableSim: TaskInput[] = [];
@@ -19,7 +19,7 @@ export async function taskRoutes(app: FastifyTypeInstance) {
         400: z.object({ message: z.string() }),
       }
     }
-  }, (req, rep) => {
+  }, async(req, rep) => {
     const { title, description, status, assignedTo } = req.body;
 
     const userExists = usersTableSim.find(u => u.id === assignedTo && !u.deleted);
@@ -50,7 +50,7 @@ export async function taskRoutes(app: FastifyTypeInstance) {
         404: z.object({ message: z.string() }),
       }
     }
-  }, (req, rep) => {
+  }, async(req, rep) => {
     const { id } = req.params as { id: string };
     const task = tasksTableSim.find(t => t.id === id);
 
@@ -92,7 +92,7 @@ export async function taskRoutes(app: FastifyTypeInstance) {
         404: z.object({ message: z.string() }),
       }
     }
-  }, (req, rep) => {
+  }, async (req, rep) => {
     const { id } = req.params as { id: string };
     const { title, description, status } = req.body;
 
@@ -119,7 +119,7 @@ export async function taskRoutes(app: FastifyTypeInstance) {
         404: z.object({ message: z.string() }),
       }
     }
-  }, (req, rep) => {
+  }, async(req, rep) => {
     const { id } = req.params as { id: string };
     const taskIndex = tasksTableSim.findIndex(t => t.id === id);
 
