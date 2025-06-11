@@ -1,17 +1,20 @@
-import { FastifyReply, FastifyRequest } from 'fastify';
-import { UserInput } from '../schemas/user.schema';
+import { FastifyReply, FastifyRequest } from 'fastify'
+import { UserInput } from '../schemas/user.schema'
+import { randomUUID } from 'node:crypto'
 
 export async function createUserHandler(
   request: FastifyRequest<{ Body: UserInput }>,
-  reply: FastifyReply
+  reply: FastifyReply,
 ) {
-  const { name, email, password } = request.body;
+  const { name, email, password } = request.body
 
-  const user = {
-    id: Date.now().toString(), 
+  const user: UserInput = {
+    user_id: randomUUID(),
     name,
     email,
-  };
+    password,
+    is_deleted: false,
+  }
 
-  return reply.code(201).send(user);
+  return reply.code(201).send(user)
 }

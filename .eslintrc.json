@@ -1,0 +1,9 @@
+{
+    "extends": [
+        "@rocketseat/eslint-config/node"
+    ],
+    "rules": {
+        "@typescript-eslint/camelcase": "off",
+        "camelcase": "off" // Ensure the base rule is also off
+    }
+}

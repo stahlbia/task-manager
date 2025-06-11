@@ -1,14 +1,19 @@
 import { fastify } from 'fastify'
 import { fastifyCors } from '@fastify/cors'
-import { validatorCompiler, serializerCompiler, ZodTypeProvider, jsonSchemaTransform } from 'fastify-type-provider-zod'
+import {
+  validatorCompiler,
+  serializerCompiler,
+  ZodTypeProvider,
+  jsonSchemaTransform,
+} from 'fastify-type-provider-zod'
 import fastifySwagger from '@fastify/swagger'
 import fastifySwaggerUi from '@fastify/swagger-ui'
 import { userRoutes } from './routes/users.routes'
 import open from 'open'
-import fjwt, { FastifyJWT } from '@fastify/jwt'
+import fjwt from '@fastify/jwt'
 import fCookie from '@fastify/cookie'
 import { authRoutes } from './routes/auth.routes'
-import { taskRoutes } from './routes/tasks.routes';
+import { taskRoutes } from './routes/tasks.routes'
 
 const app = fastify().withTypeProvider<ZodTypeProvider>()
 
@@ -21,17 +26,17 @@ app.setSerializerCompiler(serializerCompiler)
 app.register(fastifyCors, { origin: '*' })
 
 app.register(fastifySwagger, {
-    openapi: {
-        info: {
-            title: 'task manager',
-            version: '1.0.0',
-        }
+  openapi: {
+    info: {
+      title: 'task manager',
+      version: '1.0.0',
     },
-    transform: jsonSchemaTransform
+  },
+  transform: jsonSchemaTransform,
 })
 
 app.register(fastifySwaggerUi, {
-    routePrefix: '/docs',
+  routePrefix: '/docs',
 })
 
 app.register(userRoutes, { prefix: '/api/v1' })
@@ -54,6 +59,6 @@ app.register(fCookie, {
 })
 
 app.listen({ port: 3333 }).then(() => {
-    console.log('HTTP server running!')
-    open('http://localhost:3333/docs')
+  console.log('HTTP server running!')
+  open('http://localhost:3333/docs')
 })

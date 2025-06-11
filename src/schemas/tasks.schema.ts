@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
 export const taskSchema = z.object({
   task_id: z.string().uuid(),
@@ -6,6 +6,6 @@ export const taskSchema = z.object({
   description: z.string().optional(),
   status: z.enum(['pending', 'in_progress', 'completed']),
   assigned_to: z.string().uuid(),
-});
+})
 
-export type TaskInput = z.infer<typeof taskSchema>;
+export type TaskInput = z.infer<typeof taskSchema>

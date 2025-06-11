@@ -8,12 +8,12 @@ export const loginSchema = z.object({
     })
     .email(),
   password: z.string().min(8),
-});
+})
 
-export type LoginInput = z.infer<typeof loginSchema>;
+export type LoginInput = z.infer<typeof loginSchema>
 
 export const loginResponseSchema = z.object({
   accessToken: z.string(),
 })
 
-export type LoginResponse = z.infer<typeof loginResponseSchema>;
+export type LoginResponse = z.infer<typeof loginResponseSchema>
