@@ -234,8 +234,8 @@ Emanu:
 
 Gabriela:
 
-- [ ] Implementar API CRUD para usuários -> Gabrela
-- [ ] Implementar API CRUD para tarefas -> Gabrela
+- [X] Implementar API CRUD para usuários -> Gabrela
+- [X] Implementar API CRUD para tarefas -> Gabrela
 - [ ] Implementar testes de integração - Gabrela
 
 Bia:

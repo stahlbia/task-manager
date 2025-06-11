@@ -1,0 +1,19 @@
+meta {
+  name: get task4
+  type: http
+  seq: 10
+}
+
+get {
+  url: http://{{task-manager.com}}/api/v1/tasks/{{task_id_4}}
+  body: none
+  auth: none
+}
+
+body:json {
+  {
+    "title": "task4",
+    "status": "pending",
+    "assigned_to": "{{user_id_4}}"
+  }
+}

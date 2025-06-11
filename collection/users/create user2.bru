@@ -1,0 +1,23 @@
+meta {
+  name: create user2
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://{{task-manager.com}}/api/v1/users
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "user2",
+    "email": "user2@example.com",
+    "password": "password2"
+  }
+}
+
+vars:post-response {
+  user_id_2: res.body.user_id
+}
