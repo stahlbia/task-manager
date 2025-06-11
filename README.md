@@ -121,7 +121,7 @@ project-root/
 
 ## Estrutura do Banco de Dados
 
-![alt text](docs/images/image.png)
+![alt text](docs/images/db-logic.png)
 
 ### users table
 
