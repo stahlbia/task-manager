@@ -19,10 +19,10 @@ export async function userRoutes(app: FastifyTypeInstance) {
         }
       }
     }, () => {
-      return usersTableSim.filter(u => !u.deleted).map(({ password, ...rest }) => rest); //soft delete
+      return usersTableSim.filter(u => !u.is_deleted).map(({ password, ...rest }) => rest); //soft delete
     });
 
-    app.get('/users/:id', {
+    app.get('/users/:user_id', {
         schema: {
             tags: ['users'],
             description: 'Get an user by ID',
@@ -31,9 +31,9 @@ export async function userRoutes(app: FastifyTypeInstance) {
                 404: z.object({ message: z.string() }).describe('User not found'),
             },
         }
-    }, (req, rep) => {
-        const {id} = req.param as {id: string};
-        const user = usersTableSim.find(u => u.id === id && !u.deleted);
+    }, async (req, rep) => {
+        const {user_id} = req.params as {user_id: string};
+        const user = usersTableSim.find(u => u.user_id === user_id && !u.is_deleted);
 
         if(!user)
             return rep.status(404).send({ message: 'User not found'});
@@ -41,7 +41,6 @@ export async function userRoutes(app: FastifyTypeInstance) {
         const { password, ...userWithoutPassowrd } = user;
         return rep.send(userWithoutPassowrd);
     });
-
 
     app.post('/users', {
         schema: {
@@ -61,7 +60,6 @@ export async function userRoutes(app: FastifyTypeInstance) {
     }, async (req, rep) => {
         const { name, email, password } = req.body
 
-
         const user = usersTableSim.find((user) => user.email === email)
         if (user) {
             return rep.status(401).send({ message: 'User already exists' })
@@ -70,10 +68,11 @@ export async function userRoutes(app: FastifyTypeInstance) {
         try {
             const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS)
             const user: UserInput = {
-                id: randomUUID(),
+                user_id: randomUUID(),
                 name,
                 email,
                 password: hashedPassword,
+                is_deleted: false,
             }
             usersTableSim.push(user)
 
@@ -83,12 +82,12 @@ export async function userRoutes(app: FastifyTypeInstance) {
         }
     });
 
-    app.put('/users/:id', {
+    app.put('/users/:user_id', {
         schema: {
           tags: ['users'],
           description: 'Update a user',
           params: z.object({
-            id: z.string(),
+            user_id: z.string(),
           }),
           body: z.object({
             name: z.string().optional(),
@@ -101,10 +100,10 @@ export async function userRoutes(app: FastifyTypeInstance) {
           },
         }
       }, async (req, rep) => {
-        const { id } = req.params as { id: string };
+        const { user_id } = req.params as { user_id: string };
         const { name, email, password } = req.body as Partial<UserInput>;
     
-        const user = usersTableSim.find(u => u.id === id && !u.deleted);
+        const user = usersTableSim.find(u => u.user_id === user_id && !u.is_deleted);
         if (!user) {
           return rep.status(404).send({ message: 'User not found' });
         }
@@ -117,27 +116,27 @@ export async function userRoutes(app: FastifyTypeInstance) {
         return rep.send(userWithoutPassword);
       });
     
-      app.delete('/users/:id', {
+      app.delete('/users/:user_id', {
         schema: {
           tags: ['users'],
           description: 'Soft delete a user',
           params: z.object({
-            id: z.string(),
+            user_id: z.string(),
           }),
           response: {
             204: z.null(),
             404: z.object({ message: z.string() }).describe('User not found'),
           },
         }
-      }, (req, rep) => {
-        const { id } = req.params as { id: string };
-        const user = usersTableSim.find(u => u.id === id && !u.deleted);
+      },async (req, rep) => {
+        const { user_id } = req.params as { user_id: string };
+        const user = usersTableSim.find(u => u.user_id === user_id && !u.is_deleted);
     
         if (!user) {
           return rep.status(404).send({ message: 'User not found' });
         }
     
-        user.deleted = true;
+        user.is_deleted = true;
         return rep.status(204).send();
       });
     }

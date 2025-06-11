@@ -1,8 +1,8 @@
 import z from 'zod';
 import { FastifyTypeInstance } from '../utils/types';
 import { randomUUID } from 'node:crypto';
-import { taskSchema, TaskInput } from '../schemas/task.schema';
-import { usersTableSim } from './user.routes';
+import { taskSchema, TaskInput } from '../schemas/tasks.schema';
+import { usersTableSim } from './users.routes';
 
 // Simulação do "banco" de tarefas
 export const tasksTableSim: TaskInput[] = [];
@@ -13,26 +13,26 @@ export async function taskRoutes(app: FastifyTypeInstance) {
     schema: {
       tags: ['tasks'],
       description: 'Create a new task',
-      body: taskSchema.omit({ id: true }),
+      body: taskSchema.omit({ task_id: true }),
       response: {
         201: taskSchema,
         400: z.object({ message: z.string() }),
       }
     }
-  }, (req, rep) => {
-    const { title, description, status, assignedTo } = req.body;
+  }, async(req, rep) => {
+    const { title, description, status, assigned_to } = req.body;
 
-    const userExists = usersTableSim.find(u => u.id === assignedTo && !u.deleted);
+    const userExists = usersTableSim.find(u => u.user_id === assigned_to && !u.is_deleted);
     if (!userExists) {
       return rep.status(400).send({ message: 'Assigned user not found' });
     }
 
     const task: TaskInput = {
-      id: randomUUID(),
+      task_id: randomUUID(),
       title,
       description,
       status,
-      assignedTo,
+      assigned_to,
     };
 
     tasksTableSim.push(task);
@@ -40,19 +40,19 @@ export async function taskRoutes(app: FastifyTypeInstance) {
   });
 
   // GET /tasks/:id
-  app.get('/tasks/:id', {
+  app.get('/tasks/:task_id', {
     schema: {
       tags: ['tasks'],
       description: 'Get a task by ID',
-      params: z.object({ id: z.string() }),
+      params: z.object({ task_id: z.string().uuid() }),
       response: {
         200: taskSchema,
         404: z.object({ message: z.string() }),
       }
     }
-  }, (req, rep) => {
-    const { id } = req.params as { id: string };
-    const task = tasksTableSim.find(t => t.id === id);
+  }, async(req, rep) => {
+    const { task_id } = req.params as { task_id: string };
+    const task = tasksTableSim.find(t => t.task_id === task_id);
 
     if (!task) {
       return rep.status(404).send({ message: 'Task not found' });
@@ -61,27 +61,27 @@ export async function taskRoutes(app: FastifyTypeInstance) {
     return rep.send(task);
   });
 
-  // GET /tasks?assignedTo={userId}
+  // GET /tasks?assigned_to={user_id}
   app.get('/tasks', {
     schema: {
       tags: ['tasks'],
       description: 'List tasks assigned to a user',
-      querystring: z.object({ assignedTo: z.string() }),
+      querystring: z.object({ assigned_to: z.string() }),
       response: {
         200: z.array(taskSchema),
       }
     }
   }, (req) => {
-    const { assignedTo } = req.query as { assignedTo: string };
-    return tasksTableSim.filter(task => task.assignedTo === assignedTo);
+    const { assigned_to } = req.query as { assigned_to: string };
+    return tasksTableSim.filter(task => task.assigned_to === assigned_to);
   });
 
-  // PUT /tasks/:id
-  app.put('/tasks/:id', {
+  // PUT /tasks/:task_id
+  app.put('/tasks/:task_id', {
     schema: {
       tags: ['tasks'],
       description: 'Update a task',
-      params: z.object({ id: z.string() }),
+      params: z.object({ task_id: z.string().uuid() }),
       body: z.object({
         title: z.string().optional(),
         description: z.string().optional(),
@@ -92,11 +92,11 @@ export async function taskRoutes(app: FastifyTypeInstance) {
         404: z.object({ message: z.string() }),
       }
     }
-  }, (req, rep) => {
-    const { id } = req.params as { id: string };
+  }, async (req, rep) => {
+    const { task_id } = req.params as { task_id: string };
     const { title, description, status } = req.body;
 
-    const task = tasksTableSim.find(t => t.id === id);
+    const task = tasksTableSim.find(t => t.task_id === task_id);
     if (!task) {
       return rep.status(404).send({ message: 'Task not found' });
     }
@@ -108,20 +108,20 @@ export async function taskRoutes(app: FastifyTypeInstance) {
     return rep.send(task);
   });
 
-  // DELETE /tasks/:id
-  app.delete('/tasks/:id', {
+  // DELETE /tasks/:task_id
+  app.delete('/tasks/:task_id', {
     schema: {
       tags: ['tasks'],
       description: 'Delete a task',
-      params: z.object({ id: z.string() }),
+      params: z.object({ task_id: z.string() }),
       response: {
         204: z.null(),
         404: z.object({ message: z.string() }),
       }
     }
-  }, (req, rep) => {
-    const { id } = req.params as { id: string };
-    const taskIndex = tasksTableSim.findIndex(t => t.id === id);
+  }, async(req, rep) => {
+    const { task_id } = req.params as { task_id: string };
+    const taskIndex = tasksTableSim.findIndex(t => t.task_id === task_id);
 
     if (taskIndex === -1) {
       return rep.status(404).send({ message: 'Task not found' });
