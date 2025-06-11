@@ -1,0 +1,17 @@
+meta {
+  name: get user4
+  type: http
+  seq: 9
+}
+
+get {
+  url: http://{{task-manager.com}}/api/v1/users/{{user_id_4}}
+  body: none
+  auth: none
+}
+
+body:json {
+  {
+    "name": "user1 editado"
+  }
+}
