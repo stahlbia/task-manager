@@ -3,12 +3,15 @@ import { fastifyCors } from '@fastify/cors'
 import { validatorCompiler, serializerCompiler, ZodTypeProvider, jsonSchemaTransform } from 'fastify-type-provider-zod'
 import fastifySwagger from '@fastify/swagger'
 import fastifySwaggerUi from '@fastify/swagger-ui'
+import { knex } from './database'
+
 import { userRoutes } from './routes/users.routes'
-import open from 'open'
-import fjwt, { FastifyJWT } from '@fastify/jwt'
-import fCookie from '@fastify/cookie'
 import { authRoutes } from './routes/auth.routes'
 import { taskRoutes } from './routes/tasks.routes';
+
+import open from 'open'
+import fjwt from '@fastify/jwt'
+import fCookie from '@fastify/cookie'
 
 const app = fastify().withTypeProvider<ZodTypeProvider>()
 
@@ -37,6 +40,10 @@ app.register(fastifySwaggerUi, {
 app.register(userRoutes, { prefix: '/api/v1' })
 app.register(authRoutes, { prefix: '/api/v1' })
 app.register(taskRoutes, { prefix: '/api/v1' })
+app.get('/table_infos', async () => {
+    const tables = await knex('sqlite_schema').select('*')
+    return tables
+})
 
 // jwt
 app.register(fjwt, { secret: 'supersecretcode-CHANGE_THIS-USE_ENV_FILE' })
@@ -52,6 +59,7 @@ app.register(fCookie, {
   secret: 'some-secret-key',
   hook: 'preHandler',
 })
+
 
 app.listen({ port: 3333 }).then(() => {
     console.log('HTTP server running!')
