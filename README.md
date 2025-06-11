@@ -153,7 +153,6 @@ project-root/
 - task_id: string, uuid, required, FK from tasks_table
 - user_id: string, uuid, required, FK from users_table
 
-
 ## Stack do Projeto
 
 ### 🟩 Node.js
