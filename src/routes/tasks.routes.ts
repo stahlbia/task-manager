@@ -1,11 +1,11 @@
 import z from 'zod'
 import { FastifyTypeInstance } from '../utils/types'
 import { randomUUID } from 'node:crypto'
-import { taskSchema, TaskInput } from '../schemas/tasks.schema'
+import { taskSchema, TaskSchema } from '../schemas/tasks.schema'
 import { usersTableSim } from './users.routes'
 
 // Simulação do "banco" de tarefas
-export const tasksTableSim: TaskInput[] = []
+export const tasksTableSim: TaskSchema[] = []
 
 export async function taskRoutes(app: FastifyTypeInstance) {
   // POST /tasks
@@ -32,7 +32,7 @@ export async function taskRoutes(app: FastifyTypeInstance) {
         return rep.status(400).send({ message: 'Assigned user not found' })
       }
 
-      const task: TaskInput = {
+      const task: TaskSchema = {
         task_id: randomUUID(),
         title,
         description,
