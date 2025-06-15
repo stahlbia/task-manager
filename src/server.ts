@@ -44,7 +44,7 @@ app.register(authRoutes, { prefix: '/api/v1' })
 app.register(taskRoutes, { prefix: '/api/v1' })
 
 // jwt
-app.register(fjwt, { secret: 'supersecretcode-CHANGE_THIS-USE_ENV_FILE' })
+app.register(fjwt, { secret: '3ddbb74f2943105798d575276a40c584' })
 
 app.addHook('preHandler', (req, res, next) => {
   // here we are

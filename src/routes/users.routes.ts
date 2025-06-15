@@ -8,7 +8,8 @@ import {
   UserSchema,
   updateUserSchema,
 } from '../schemas/user.schema'
-import bcrypt from 'bcryptjs'
+import bcrypt from 'bcrypt'
+import { createUserHandler } from '../controllers/user.controller'
 
 // simulacao do banco
 export const usersTableSim: UserSchema[] = []
@@ -67,7 +68,7 @@ export async function userRoutes(app: FastifyTypeInstance) {
         description: 'Create a new user',
         body: createUserSchema,
         response: {
-          201: userSchema.describe('Created user'),
+          201: userSchema.omit({ password: true }).describe('Created user'),
           401: z
             .object({ message: z.string() })
             .describe('User already exists'),
@@ -77,30 +78,7 @@ export async function userRoutes(app: FastifyTypeInstance) {
         },
       },
     },
-    async (req, rep) => {
-      const { name, email, password } = req.body
-
-      const user = usersTableSim.find((user) => user.email === email)
-      if (user) {
-        return rep.status(401).send({ message: 'User already exists' })
-      }
-
-      try {
-        const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS)
-        const user: UserSchema = {
-          user_id: randomUUID(),
-          name,
-          email,
-          password: hashedPassword,
-          is_deleted: false,
-        }
-        usersTableSim.push(user)
-
-        return rep.status(201).send(user)
-      } catch (e) {
-        return rep.status(500).send({ message: 'Internal server error' })
-      }
-    },
+    createUserHandler,
   )
 
   app.put(
