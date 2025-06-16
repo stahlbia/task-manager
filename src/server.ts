@@ -14,7 +14,7 @@ import FastifyJwt from '@fastify/jwt'
 import { authRoutes } from './routes/auth.routes'
 import { taskRoutes } from './routes/tasks.routes'
 import { env } from './env'
-import { errorHandling } from './middlewares/error-handling.middleware'
+// import { errorHandling } from './middlewares/error-handling.middleware'
 
 const app = fastify().withTypeProvider<ZodTypeProvider>()
 
@@ -22,7 +22,7 @@ const app = fastify().withTypeProvider<ZodTypeProvider>()
 app.setValidatorCompiler(validatorCompiler)
 // seta o zod para serializar todos os dados de saida
 app.setSerializerCompiler(serializerCompiler)
-app.setErrorHandler(errorHandling)
+// app.setErrorHandler(errorHandling)
 
 // registra o pluging do cors e libera ele para todos os endpoints
 app.register(fastifyCors, { origin: '*' })

@@ -1,5 +1,11 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 
-export function errorHandling (error: any, req: FastifyRequest, rep: FastifyReply) {
-    return rep.status(error.statusCode || 500).send({ error: error.message || 'Internal Server Error' })
+export function errorHandling(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  error: any,
+  req: FastifyRequest,
+  rep: FastifyReply,
+) {
+  const message = error.message || 'Internal Server Error'
+  return rep.status(error.statusCode || 500).send({ message })
 }

@@ -9,7 +9,7 @@ export const userSchema = z.object({
   password: z
     .string()
     .min(8, { message: 'Password must be at least 8 characters long' }),
-  is_deleted: z.boolean(),
+  is_deleted: z.boolean().default(false),
 })
 
 export type UserSchema = z.infer<typeof userSchema> // <- evita duplicar interface
