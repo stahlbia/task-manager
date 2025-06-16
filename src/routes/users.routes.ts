@@ -10,7 +10,7 @@ import {
 } from '../schemas/user.schema'
 import bcrypt from 'bcrypt'
 import { createUserHandler } from '../controllers/user.controller'
-import { ensureAuthenticated } from '../middlewares/ensure-authenticated'
+import { ensureAuthenticated } from '../middlewares/auth-middleware'
 
 // simulacao do banco
 export const usersTableSim: UserSchema[] = []
