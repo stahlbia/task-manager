@@ -6,6 +6,7 @@ import {
 } from '../schemas/auth.schema'
 import { loginHandler, logoutHandler } from '../controllers/auth.controller'
 import z from 'zod'
+import { ensureAuthenticated } from '../middlewares/auth-handling.middleware'
 
 // simulacao do banco
 // const authTokens: LoginInput[] = []
@@ -38,6 +39,7 @@ export async function authRoutes(app: FastifyTypeInstance) {
           400: z.object({ message: z.string() }),
         },
       },
+      preHandler: ensureAuthenticated,
     },
     logoutHandler,
   )

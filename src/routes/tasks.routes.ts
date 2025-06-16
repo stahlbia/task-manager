@@ -22,6 +22,7 @@ export async function taskRoutes(app: FastifyTypeInstance) {
           400: z.object({ message: z.string() }),
         },
       },
+      preHandler: ensureAuthenticated,
     },
     async (req, rep) => {
       const { title, description, status, assigned_to } = req.body
