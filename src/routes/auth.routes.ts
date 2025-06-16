@@ -1,20 +1,46 @@
-import z from 'zod';
-import { FastifyTypeInstance } from "../utils/types";
-import { loginSchema, loginResponseSchema, LoginInput } from "../schemas/auth.schema";
-import { loginHandler } from '../controllers/auth.controller';
+import { FastifyTypeInstance } from '../utils/types'
+import {
+  loginSchema,
+  loginResponseSchema,
+  logoutSchema,
+} from '../schemas/auth.schema'
+import { loginHandler, logoutHandler } from '../controllers/auth.controller'
+import z from 'zod'
+import { ensureAuthenticated } from '../middlewares/auth-handling.middleware'
 
 // simulacao do banco
-const authTokens: LoginInput[] = [];
+// const authTokens: LoginInput[] = []
 
 export async function authRoutes(app: FastifyTypeInstance) {
-    app.post('/login', {
-        schema: {
-            tags: ['auth'],
-            description: 'Login into the api',
-            body: loginSchema,
-            response: {
-                201: loginResponseSchema,
-            },
+  app.post(
+    '/login',
+    {
+      schema: {
+        tags: ['auth'],
+        description: 'Login into the API',
+        body: loginSchema,
+        response: {
+          201: loginResponseSchema,
+          401: z.object({ message: z.string() }),
         },
-    }, loginHandler);
+      },
+    },
+    loginHandler,
+  )
+  app.post(
+    '/logout',
+    {
+      schema: {
+        tags: ['auth'],
+        description: 'Logout from the API',
+        body: logoutSchema,
+        response: {
+          201: z.object({ message: z.string() }),
+          400: z.object({ message: z.string() }),
+        },
+      },
+      preHandler: ensureAuthenticated,
+    },
+    logoutHandler,
+  )
 }

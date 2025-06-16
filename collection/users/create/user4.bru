@@ -1,11 +1,11 @@
 meta {
-  name: create user4
+  name: user4
   type: http
-  seq: 5
+  seq: 4
 }
 
 post {
-  url: http://{{task-manager.com}}/api/v1/users
+  url: http://localhost:3333/api/v1/users
   body: json
   auth: none
 }
@@ -13,8 +13,8 @@ post {
 body:json {
   {
     "name": "user4",
-    "email": "user4@example.com",
-    "password": "password4"
+    "email": "user4@gmail.com",
+    "password": "password123"
   }
 }
 

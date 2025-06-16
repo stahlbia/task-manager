@@ -1,7 +1,7 @@
 meta {
-  name: get user4
+  name: user4
   type: http
-  seq: 9
+  seq: 4
 }
 
 get {
@@ -10,8 +10,6 @@ get {
   auth: none
 }
 
-body:json {
-  {
-    "name": "user1 editado"
-  }
+headers {
+  authorization: {{accessToken}}
 }

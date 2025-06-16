@@ -1,7 +1,7 @@
 meta {
-  name: update task1
+  name: change task1
   type: http
-  seq: 11
+  seq: 8
 }
 
 put {
@@ -12,6 +12,10 @@ put {
 
 body:json {
   {
-    "title": "task1 editado"
+    "title": "task renamed"
   }
+}
+
+headers {
+  authorization: {{accessToken}}
 }
