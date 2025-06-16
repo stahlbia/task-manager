@@ -2,7 +2,7 @@ import { FastifyReply, FastifyRequest } from 'fastify'
 import { LoginInput } from '../schemas/auth.schema'
 import { usersTableSim } from '../routes/users.routes'
 import { compare } from 'bcrypt'
-import { authConfig } from '../configs/auth.config'
+import { env } from '../env'
 
 export async function loginHandler(
   req: FastifyRequest<{ Body: LoginInput }>,
@@ -23,12 +23,9 @@ export async function loginHandler(
     return rep.status(401).send({ message: 'invalid email or password' })
   }
 
-  const { expiresIn } = authConfig.jwt
-
   const payload = {
     id: user.user_id,
-    email: user.email,
-    expiresIn,
+    expiresIn: env.EXPIRES_IN,
   }
   const token = req.jwt.sign(payload)
 

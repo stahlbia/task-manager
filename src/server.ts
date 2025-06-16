@@ -13,6 +13,7 @@ import open from 'open'
 import fjwt from '@fastify/jwt'
 import { authRoutes } from './routes/auth.routes'
 import { taskRoutes } from './routes/tasks.routes'
+import { env } from './env'
 
 const app = fastify().withTypeProvider<ZodTypeProvider>()
 
@@ -43,7 +44,7 @@ app.register(authRoutes, { prefix: '/api/v1' })
 app.register(taskRoutes, { prefix: '/api/v1' })
 
 // jwt
-app.register(fjwt, { secret: '3ddbb74f2943105798d575276a40c584' })
+app.register(fjwt, { secret: env.JWT_SECRET })
 
 app.addHook('preHandler', (req, res, next) => {
   req.jwt = app.jwt
