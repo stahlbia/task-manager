@@ -10,6 +10,7 @@ import {
 } from '../schemas/user.schema'
 import bcrypt from 'bcrypt'
 import { createUserHandler } from '../controllers/user.controller'
+import { ensureAuthenticated } from '../middlewares/ensure-authenticated'
 
 // simulacao do banco
 export const usersTableSim: UserSchema[] = []
@@ -26,6 +27,7 @@ export async function userRoutes(app: FastifyTypeInstance) {
           200: z.array(userSchema.omit({ password: true })),
         },
       },
+      preHandler: ensureAuthenticated,
     },
     () => {
       return usersTableSim
@@ -46,6 +48,7 @@ export async function userRoutes(app: FastifyTypeInstance) {
           404: z.object({ message: z.string() }).describe('User not found'),
         },
       },
+      preHandler: ensureAuthenticated,
     },
     async (req, rep) => {
       const { user_id } = req.params
@@ -69,7 +72,7 @@ export async function userRoutes(app: FastifyTypeInstance) {
         body: createUserSchema,
         response: {
           201: userSchema.omit({ password: true }).describe('Created user'),
-          401: z
+          409: z
             .object({ message: z.string() })
             .describe('User already exists'),
           500: z
@@ -96,6 +99,7 @@ export async function userRoutes(app: FastifyTypeInstance) {
           404: z.object({ message: z.string() }).describe('User not found'),
         },
       },
+      preHandler: ensureAuthenticated,
     },
     async (req, rep) => {
       const { user_id } = req.params as { user_id: string }
@@ -136,6 +140,7 @@ export async function userRoutes(app: FastifyTypeInstance) {
           404: z.object({ message: z.string() }).describe('User not found'),
         },
       },
+      preHandler: ensureAuthenticated,
     },
     async (req, rep) => {
       const { user_id } = req.params as { user_id: string }

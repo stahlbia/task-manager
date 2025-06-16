@@ -54,7 +54,7 @@ app.addHook('preHandler', (req, res, next) => {
 
 // cookies
 app.register(fCookie, {
-  secret: 'some-secret-key',
+  secret: '3ddbb74f2943105798d575276a40c584',
   hook: 'preHandler',
 })
 

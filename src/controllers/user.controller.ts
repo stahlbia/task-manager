@@ -21,7 +21,7 @@ export async function createUserHandler(
 
   const userWithSameEmail = usersTableSim.find((user) => user.email === email)
   if (userWithSameEmail) {
-    return reply.code(401).send('User already exists')
+    return reply.code(409).send('User already exists')
   }
 
   try {

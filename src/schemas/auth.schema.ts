@@ -19,3 +19,10 @@ export const loginResponseSchema = z.object({
 })
 
 export type LoginResponse = z.infer<typeof loginResponseSchema>
+
+export const tokenPayload = z.object({
+  user_id: z.string().uuid(),
+  expiresIn: z.number(),
+})
+
+export type TokenPayload = z.infer<typeof tokenPayload>

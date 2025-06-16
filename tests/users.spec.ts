@@ -36,7 +36,7 @@ describe('User routes', () => {
       password: '12345678',
     })
 
-    expect(res.status).toBe(401)
+    expect(res.status).toBe(409)
   })
 
   it('lista todos os usuários', async () => {

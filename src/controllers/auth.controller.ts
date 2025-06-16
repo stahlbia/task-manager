@@ -28,11 +28,9 @@ export async function loginHandler(
   const payload = {
     id: user.user_id,
     email: user.email,
-    name: user.name,
-  }
-  const token = req.jwt.sign(payload, {
     expiresIn,
-  })
+  }
+  const token = req.jwt.sign(payload)
 
   rep.setCookie('access_token', token, {
     path: '/',
@@ -42,7 +40,5 @@ export async function loginHandler(
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { password: _, ...userWithoutPassword } = user
-  console.log(user)
-  console.log(userWithoutPassword)
   return rep.status(201).send({ accessToken: token, user: userWithoutPassword })
 }

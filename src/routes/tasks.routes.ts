@@ -3,6 +3,7 @@ import { FastifyTypeInstance } from '../utils/types'
 import { randomUUID } from 'node:crypto'
 import { taskSchema, TaskSchema } from '../schemas/tasks.schema'
 import { usersTableSim } from './users.routes'
+import { ensureAuthenticated } from '../middlewares/ensure-authenticated'
 
 // Simulação do "banco" de tarefas
 export const tasksTableSim: TaskSchema[] = []
@@ -58,6 +59,7 @@ export async function taskRoutes(app: FastifyTypeInstance) {
           404: z.object({ message: z.string() }),
         },
       },
+      preHandler: ensureAuthenticated,
     },
     async (req, rep) => {
       const { task_id } = req.params
@@ -83,6 +85,7 @@ export async function taskRoutes(app: FastifyTypeInstance) {
           200: z.array(taskSchema),
         },
       },
+      preHandler: ensureAuthenticated,
     },
     (req) => {
       const { assigned_to } = req.query as { assigned_to: string }
@@ -108,6 +111,7 @@ export async function taskRoutes(app: FastifyTypeInstance) {
           404: z.object({ message: z.string() }),
         },
       },
+      preHandler: ensureAuthenticated,
     },
     async (req, rep) => {
       const { task_id } = req.params as { task_id: string }
@@ -139,6 +143,7 @@ export async function taskRoutes(app: FastifyTypeInstance) {
           404: z.object({ message: z.string() }),
         },
       },
+      preHandler: ensureAuthenticated,
     },
     async (req, rep) => {
       const { task_id } = req.params as { task_id: string }
