@@ -1,0 +1,27 @@
+meta {
+  name: create task4
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://{{task-manager.com}}/api/v1/tasks
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "title": "task4",
+    "status": "pending",
+    "assigned_to": "{{user_id_4}}"
+  }
+}
+
+vars:post-response {
+  task_id_4: res.body.task_id
+}
+
+headers {
+  authorization: {{accessToken}}
+}

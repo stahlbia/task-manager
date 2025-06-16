@@ -1,0 +1,21 @@
+meta {
+  name: change task1
+  type: http
+  seq: 8
+}
+
+put {
+  url: http://{{task-manager.com}}/api/v1/tasks/{{task_id_1}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "title": "task renamed"
+  }
+}
+
+headers {
+  authorization: {{accessToken}}
+}

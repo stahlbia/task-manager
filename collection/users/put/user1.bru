@@ -1,0 +1,21 @@
+meta {
+  name: user1
+  type: http
+  seq: 1
+}
+
+put {
+  url: http://localhost:3333/api/v1/users/{{user_id_1}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "be"
+  }
+}
+
+headers {
+  authorization: {{accessToken}}
+}

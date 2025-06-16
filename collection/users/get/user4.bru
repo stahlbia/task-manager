@@ -1,0 +1,15 @@
+meta {
+  name: user4
+  type: http
+  seq: 4
+}
+
+get {
+  url: http://{{task-manager.com}}/api/v1/users/{{user_id_4}}
+  body: none
+  auth: none
+}
+
+headers {
+  authorization: {{accessToken}}
+}
