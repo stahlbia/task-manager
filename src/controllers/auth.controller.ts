@@ -32,12 +32,6 @@ export async function loginHandler(
   }
   const token = req.jwt.sign(payload)
 
-  rep.setCookie('access_token', token, {
-    path: '/',
-    httpOnly: true,
-    secure: true,
-  })
-
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { password: _, ...userWithoutPassword } = user
   return rep.status(201).send({ accessToken: token, user: userWithoutPassword })

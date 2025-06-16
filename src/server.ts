@@ -11,7 +11,6 @@ import fastifySwaggerUi from '@fastify/swagger-ui'
 import { userRoutes } from './routes/users.routes'
 import open from 'open'
 import fjwt from '@fastify/jwt'
-import fCookie from '@fastify/cookie'
 import { authRoutes } from './routes/auth.routes'
 import { taskRoutes } from './routes/tasks.routes'
 
@@ -47,15 +46,8 @@ app.register(taskRoutes, { prefix: '/api/v1' })
 app.register(fjwt, { secret: '3ddbb74f2943105798d575276a40c584' })
 
 app.addHook('preHandler', (req, res, next) => {
-  // here we are
   req.jwt = app.jwt
   return next()
-})
-
-// cookies
-app.register(fCookie, {
-  secret: '3ddbb74f2943105798d575276a40c584',
-  hook: 'preHandler',
 })
 
 app.listen({ port: 3333 }).then(() => {
