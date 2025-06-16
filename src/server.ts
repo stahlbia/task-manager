@@ -10,10 +10,11 @@ import fastifySwagger from '@fastify/swagger'
 import fastifySwaggerUi from '@fastify/swagger-ui'
 import { userRoutes } from './routes/users.routes'
 import open from 'open'
-import fjwt from '@fastify/jwt'
+import FastifyJwt from '@fastify/jwt'
 import { authRoutes } from './routes/auth.routes'
 import { taskRoutes } from './routes/tasks.routes'
 import { env } from './env'
+import { errorHandling } from './middlewares/error-handling.middleware'
 
 const app = fastify().withTypeProvider<ZodTypeProvider>()
 
@@ -21,6 +22,7 @@ const app = fastify().withTypeProvider<ZodTypeProvider>()
 app.setValidatorCompiler(validatorCompiler)
 // seta o zod para serializar todos os dados de saida
 app.setSerializerCompiler(serializerCompiler)
+app.setErrorHandler(errorHandling)
 
 // registra o pluging do cors e libera ele para todos os endpoints
 app.register(fastifyCors, { origin: '*' })
@@ -44,7 +46,7 @@ app.register(authRoutes, { prefix: '/api/v1' })
 app.register(taskRoutes, { prefix: '/api/v1' })
 
 // jwt
-app.register(fjwt, { secret: env.JWT_SECRET })
+app.register(FastifyJwt, { secret: env.JWT_SECRET })
 
 app.addHook('preHandler', (req, res, next) => {
   req.jwt = app.jwt

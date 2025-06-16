@@ -3,7 +3,7 @@ import { FastifyTypeInstance } from '../utils/types'
 import { randomUUID } from 'node:crypto'
 import { taskSchema, TaskSchema } from '../schemas/tasks.schema'
 import { usersTableSim } from './users.routes'
-import { ensureAuthenticated } from '../middlewares/auth-middleware'
+import { ensureAuthenticated } from '../middlewares/auth-handling.middleware'
 
 // Simulação do "banco" de tarefas
 export const tasksTableSim: TaskSchema[] = []
