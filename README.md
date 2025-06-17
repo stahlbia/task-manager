@@ -49,7 +49,14 @@ npm start
 ``` md
 project-root/
 │
+├── collection/                  # Requests para a API feita com o Bruno
+│
+├── docs/                        # Arquivos utilizados na documentação, como imagens
+│
 ├── src/
+│   ├── configs/                 # Configurações para roda de autenticação
+│   │   ├── auth.config.ts
+│
 │   ├── controllers/             # Lógica dos endpoints HTTP
 │   │   ├── auth.controller.ts
 │   │   ├── task.controller.ts
@@ -61,9 +68,9 @@ project-root/
 │   │   └── user.routes.ts
 │
 │   ├── schemas/                 # Validação e tipagem com Zod
+│   │   └── auth.schema.ts
 │   │   ├── task.schema.ts
 │   │   ├── user.schema.ts
-│   │   └── auth.schema.ts
 │
 │   ├── models/                  # Mapeamento de dados (ORM ou SQL)
 │   │   ├── task.model.ts
@@ -102,7 +109,6 @@ project-root/
 │   │   ├── jwt.ts
 │   │   └── formatDate.ts
 │
-│   ├── app.ts                   # Criação e configuração do Fastify
 │   └── server.ts                # Inicia o servidor
 │
 ├── tests/                       # Testes com Jest
@@ -121,7 +127,7 @@ project-root/
 
 ## Estrutura do Banco de Dados
 
-![alt text](docs/images/image.png)
+![alt text](docs/images/db-logic.png)
 
 ### users table
 
@@ -153,7 +159,6 @@ project-root/
 - task_id: string, uuid, required, FK from tasks_table
 - user_id: string, uuid, required, FK from users_table
 
-
 ## Stack do Projeto
 
 ### 🟩 Node.js
@@ -183,6 +188,10 @@ Banco de dados relacional robusto, usado para persistir dados de forma segura, e
 ### ✅ Jest
 
 Framework de testes em JavaScript/TypeScript, utilizado para escrever e executar testes automatizados garantindo o funcionamento correto das funcionalidades da API.
+
+### 🔒 Bcrypt
+
+Biblioteca para hashing de senhas, utilizada para garantir a segurança das credenciais dos usuários, protegendo-as contra acessos não autorizados.
 
 ## Construção da API - Endpoints
 

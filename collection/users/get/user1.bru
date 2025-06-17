@@ -1,17 +1,15 @@
 meta {
-  name: update user1
+  name: user1
   type: http
-  seq: 7
+  seq: 2
 }
 
-put {
+get {
   url: http://{{task-manager.com}}/api/v1/users/{{user_id_1}}
-  body: json
+  body: none
   auth: none
 }
 
-body:json {
-  {
-    "name": "user1 editado"
-  }
+headers {
+  authorization: {{accessToken}}
 }

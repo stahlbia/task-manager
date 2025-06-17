@@ -14,10 +14,6 @@ params:query {
   assigned_to: {{user_id_3}}
 }
 
-body:json {
-  {
-    "title": "task4",
-    "status": "pending",
-    "assigned_to": "{{user_id_4}}"
-  }
+headers {
+  authorization: {{accessToken}}
 }

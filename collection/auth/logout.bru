@@ -1,0 +1,21 @@
+meta {
+  name: logout
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://{{task-manager.com}}/api/v1/logout
+  body: json
+  auth: none
+}
+
+headers {
+  authorization: {{accessToken}}
+}
+
+body:json {
+  {
+    "user_id": "{{user_id_1}}"
+  }
+}

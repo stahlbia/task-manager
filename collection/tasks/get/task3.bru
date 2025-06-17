@@ -1,0 +1,15 @@
+meta {
+  name: task3
+  type: http
+  seq: 3
+}
+
+get {
+  url: http://{{task-manager.com}}/api/v1/tasks/{{task_id_3}}
+  body: none
+  auth: none
+}
+
+headers {
+  authorization: {{accessToken}}
+}
