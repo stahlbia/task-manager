@@ -8,6 +8,25 @@ import { ensureAuthenticated } from '../middlewares/auth-handling.middleware'
 // Simulação do "banco" de tarefas
 export const tasksTableSim: TaskSchema[] = []
 
+//simulation of the comments table
+export const commentsTableSim: CommentSchema[] = []
+
+//schema for a single comment
+const commentSchema = z.object({
+  comment_id: z.string().uuid(),
+  task_id: z.string().uuid(),
+  user_id: z.string().uuid(),
+  comment: z.string(),
+  created_at: z.date(),
+})
+
+//Define the shape of the user payload from the JWT 
+interface UserPayload {
+  user_id: string
+}
+
+type CommentSchema = z.infer<typeof commentSchema>
+
 export async function taskRoutes(app: FastifyTypeInstance) {
   // POST /tasks
   app.post(
@@ -155,6 +174,146 @@ export async function taskRoutes(app: FastifyTypeInstance) {
       }
 
       tasksTableSim.splice(taskIndex, 1)
+      return rep.status(204).send()
+    },
+  )
+
+
+//task comments CRUD
+
+//POST /tasks/:task_id/comments
+  app.post(
+    '/tasks/:task_id/comments',
+    {
+      schema: {
+        tags: ['comments'],
+        description: 'Add a comment to a task',
+        params: z.object({ task_id: z.string().uuid() }),
+        body: z.object({ comment: z.string() }),
+        response: {
+          201: commentSchema,
+          404: z.object({ message: z.string() }),
+        },
+      },
+      preHandler: ensureAuthenticated,
+    },
+    async (req, rep) => {
+      const { task_id } = req.params
+      const { comment } = req.body
+      const { user_id } = req.user as UserPayload
+      
+      const task = tasksTableSim.find((t) => t.task_id === task_id)
+      if (!task) {
+        return rep.status(404).send({ message: 'Task not found' })
+      }
+
+      const newComment: CommentSchema = {
+        comment_id: randomUUID(),
+        task_id,
+        user_id,
+        comment,
+        created_at: new Date(),
+      }
+
+      commentsTableSim.push(newComment)
+      return rep.status(201).send(newComment)
+    },
+  )
+
+  // GET /tasks/:task_id/comments
+  app.get(
+    '/tasks/:task_id/comments',
+    {
+      schema: {
+        tags: ['comments'],
+        description: 'List all comments for a task',
+        params: z.object({ task_id: z.string().uuid() }),
+        response: {
+          200: z.array(commentSchema),
+          404: z.object({ message: z.string() }),
+        },
+      },
+      preHandler: ensureAuthenticated,
+    },
+    async (req, rep) => {
+      const { task_id } = req.params
+
+      const task = tasksTableSim.find((t) => t.task_id === task_id)
+      if (!task) {
+        return rep.status(404).send({ message: 'Task not found' })
+      }
+
+      const comments = commentsTableSim.filter(
+        (c) => c.task_id === task_id,
+      )
+      return rep.send(comments)
+    },
+  )
+
+  // PUT /tasks/:task_id/comments/:comment_id
+  app.put(
+    '/tasks/:task_id/comments/:comment_id',
+    {
+      schema: {
+        tags: ['comments'],
+        description: 'Update a specific comment on a task',
+        params: z.object({
+          task_id: z.string().uuid(),
+          comment_id: z.string().uuid(),
+        }),
+        body: z.object({ comment: z.string() }),
+        response: {
+          200: commentSchema,
+          404: z.object({ message: z.string() }),
+        },
+      },
+      preHandler: ensureAuthenticated,
+    },
+    async (req, rep) => {
+      const { comment_id } = req.params
+      const { comment } = req.body
+
+      const commentToUpdate = commentsTableSim.find(
+        (c) => c.comment_id === comment_id,
+      )
+      if (!commentToUpdate) {
+        return rep.status(404).send({ message: 'Comment not found' })
+      }
+
+      commentToUpdate.comment = comment
+      return rep.send(commentToUpdate)
+    },
+  )
+
+  // DELETE /tasks/:task_id/comments/:comment_id
+  app.delete(
+    '/tasks/:task_id/comments/:comment_id',
+    {
+      schema: {
+        tags: ['comments'],
+        description: 'Delete a specific comment on a task',
+        params: z.object({
+          task_id: z.string().uuid(),
+          comment_id: z.string().uuid(),
+        }),
+        response: {
+          204: z.null(),
+          404: z.object({ message: z.string() }),
+        },
+      },
+      preHandler: ensureAuthenticated,
+    },
+    async (req, rep) => {
+      const { comment_id } = req.params
+
+      const commentIndex = commentsTableSim.findIndex(
+        (c) => c.comment_id === comment_id,
+      )
+      if (commentIndex === -1) {
+        return rep.status(404).send({ message: 'Comment not found' })
+      }
+
+      commentsTableSim.splice(commentIndex, 1)
       return rep.status(204).send()
     },
   )
