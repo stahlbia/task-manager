@@ -11,9 +11,9 @@ import {
 import bcrypt from 'bcrypt'
 import { createUserHandler } from '../controllers/user.controller'
 import { ensureAuthenticated } from '../middlewares/auth-handling.middleware'
+import { sendNotification } from '../middlewares/send-notification.middleware'
+import { usersTableSim } from '../db/db'
 
-// simulacao do banco
-export const usersTableSim: UserSchema[] = []
 const SALT_ROUNDS = 10
 
 export async function userRoutes(app: FastifyTypeInstance) {
@@ -121,6 +121,8 @@ export async function userRoutes(app: FastifyTypeInstance) {
       if (newPassword)
         user.password = await bcrypt.hash(newPassword, SALT_ROUNDS)
 
+      sendNotification(user.email, 'user_update')
+
       const { password: _, ...userWithoutPassword } = user
       return rep.send(userWithoutPassword)
     },
@@ -153,6 +155,9 @@ export async function userRoutes(app: FastifyTypeInstance) {
       }
 
       user.is_deleted = true
+
+      sendNotification(user.email, 'user_delete')
+      
       return rep.status(204).send()
     },
   )

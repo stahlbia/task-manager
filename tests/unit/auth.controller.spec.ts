@@ -2,8 +2,12 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { FastifyRequest, FastifyReply } from 'fastify'
-import { loginHandler, logoutHandler, isTokenBlacklisted } from '../../src/controllers/auth.controller'
-import { usersTableSim } from '../../src/routes/users.routes'
+import {
+  loginHandler,
+  logoutHandler,
+  isTokenBlacklisted,
+} from '../../src/controllers/auth.controller'
+import { usersTableSim } from '../../src/db/db'
 import { compare } from 'bcrypt'
 import { JWT } from '@fastify/jwt'
 
@@ -29,7 +33,7 @@ describe('Auth Handlers (Unit Tests)', () => {
       is_deleted: false,
       created_at: new Date(),
     })
-    
+
     // Mock do objeto reply do Fastify
     mockReply = {
       status: vi.fn().mockReturnThis(),
@@ -39,7 +43,7 @@ describe('Auth Handlers (Unit Tests)', () => {
 
     // Mock do plugin JWT do Fastify
     mockJwt = {
-        sign: vi.fn()
+      sign: vi.fn(),
     }
   })
 
@@ -50,7 +54,7 @@ describe('Auth Handlers (Unit Tests)', () => {
       mockRequest = {
         body: { email: 'test@example.com', password: 'password123' },
         // Adicionando '!' para garantir ao TS que mockJwt não é undefined
-        jwt: mockJwt! as JWT 
+        jwt: mockJwt! as JWT,
       }
       const mockToken = 'mock-jwt-token'
 
@@ -66,74 +70,79 @@ describe('Auth Handlers (Unit Tests)', () => {
       expect(mockReply.send).toHaveBeenCalledWith({
         accessToken: mockToken,
         user: expect.objectContaining({
-            user_id: 'test-user-id',
-            email: 'test@example.com'
-        })
+          user_id: 'test-user-id',
+          email: 'test@example.com',
+        }),
       })
       // Garante que a senha do usuário não é retornada
       expect(mockReply.send).toHaveBeenCalledWith(
-        expect.not.objectContaining({ user: { password: expect.any(String) }})
+        expect.not.objectContaining({ user: { password: expect.any(String) } }),
       )
     })
 
     it('deve retornar erro 401 se o usuário não for encontrado', async () => {
-        // Arrange
-        mockRequest = {
-            body: { email: 'notfound@example.com', password: 'password123' },
-            jwt: mockJwt! as JWT // Adicionado '!' por consistência
-        }
+      // Arrange
+      mockRequest = {
+        body: { email: 'notfound@example.com', password: 'password123' },
+        jwt: mockJwt! as JWT, // Adicionado '!' por consistência
+      }
 
-        // Act
-        await loginHandler(mockRequest as any, mockReply as FastifyReply)
+      // Act
+      await loginHandler(mockRequest as any, mockReply as FastifyReply)
 
-        // Assert
-        expect(mockReply.status).toHaveBeenCalledWith(401)
-        expect(mockReply.send).toHaveBeenCalledWith({ message: 'invalid email or password' })
+      // Assert
+      expect(mockReply.status).toHaveBeenCalledWith(401)
+      expect(mockReply.send).toHaveBeenCalledWith({
+        message: 'invalid email or password',
+      })
     })
 
     it('deve retornar erro 401 se a senha estiver incorreta', async () => {
-        // Arrange
-        mockRequest = {
-            body: { email: 'test@example.com', password: 'wrongpassword' },
-            jwt: mockJwt! as JWT // Adicionado '!' por consistência
-        }
+      // Arrange
+      mockRequest = {
+        body: { email: 'test@example.com', password: 'wrongpassword' },
+        jwt: mockJwt! as JWT, // Adicionado '!' por consistência
+      }
 
-        vi.mocked(compare).mockResolvedValue(false) // Simula que a senha não bate
+      vi.mocked(compare).mockResolvedValue(false) // Simula que a senha não bate
 
-        // Act
-        await loginHandler(mockRequest as any, mockReply as FastifyReply)
+      // Act
+      await loginHandler(mockRequest as any, mockReply as FastifyReply)
 
-        // Assert
-        expect(mockReply.status).toHaveBeenCalledWith(401)
-        expect(mockReply.send).toHaveBeenCalledWith({ message: 'invalid email or password' })
+      // Assert
+      expect(mockReply.status).toHaveBeenCalledWith(401)
+      expect(mockReply.send).toHaveBeenCalledWith({
+        message: 'invalid email or password',
+      })
     })
   })
 
   // Testes para o logoutHandler
   describe('logoutHandler', () => {
     it('deve adicionar o token à blacklist e retornar sucesso 201', async () => {
-        // Arrange
-        const tokenToBlacklist = 'Bearer valid-token-to-blacklist'
-        mockRequest = {
-            headers: {
-                authorization: tokenToBlacklist
-            }
-        }
-        
-        // Garante que o token não está na blacklist antes do teste
-        const set = (global as any).tokenBlacklist as Set<string>
-        if (set) {
-          set.delete(tokenToBlacklist)
-        }
+      // Arrange
+      const tokenToBlacklist = 'Bearer valid-token-to-blacklist'
+      mockRequest = {
+        headers: {
+          authorization: tokenToBlacklist,
+        },
+      }
 
+      // Garante que o token não está na blacklist antes do teste
+      const set = (global as any).tokenBlacklist as Set<string>
+      if (set) {
+        set.delete(tokenToBlacklist)
+      }
 
-        // Act
-        await logoutHandler(mockRequest as any, mockReply as FastifyReply)
+      // Act
+      await logoutHandler(mockRequest as any, mockReply as FastifyReply)
 
-        // Assert
-        expect(mockReply.status).toHaveBeenCalledWith(201)
-        expect(mockReply.send).toHaveBeenCalledWith({ message: 'User logged out successfully' })
-        expect(isTokenBlacklisted(tokenToBlacklist)).toBe(true)
+      // Assert
+      expect(mockReply.status).toHaveBeenCalledWith(201)
+      expect(mockReply.send).toHaveBeenCalledWith({
+        message: 'User logged out successfully',
+      })
+      expect(isTokenBlacklisted(tokenToBlacklist)).toBe(true)
     })
   })
 })

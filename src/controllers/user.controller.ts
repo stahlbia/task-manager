@@ -2,7 +2,8 @@ import { FastifyReply, FastifyRequest } from 'fastify'
 import { UserSchema } from '../schemas/user.schema'
 import { randomUUID } from 'node:crypto'
 import { hash } from 'bcrypt'
-import { usersTableSim } from '../routes/users.routes'
+import { usersTableSim } from '../db/db'
+import { sendNotification } from '../middlewares/send-notification.middleware'
 
 const SALT_ROUNDS = 10
 
@@ -29,6 +30,8 @@ export async function createUserHandler(
     }
     
     usersTableSim.push(user)
+
+    sendNotification(user.email, 'user_created', {user_name: user.name})
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...userWithoutPassword } = user

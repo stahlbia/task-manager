@@ -2,12 +2,9 @@ import z from 'zod'
 import { FastifyTypeInstance } from '../utils/types'
 import { randomUUID } from 'node:crypto'
 import { taskSchema, TaskSchema } from '../schemas/tasks.schema'
-import { usersTableSim } from './users.routes'
+import { commentsTableSim, tasksTableSim, usersTableSim } from '../db/db'
 import { ensureAuthenticated } from '../middlewares/auth-handling.middleware'
 import { sendNotification } from '../middlewares/send-notification.middleware'
-
-// Simulação do "banco" de tarefas
-export const tasksTableSim: TaskSchema[] = []
 
 // schema for a single comment
 const commentSchema = z.object({
@@ -19,8 +16,6 @@ const commentSchema = z.object({
 })
 
 type CommentSchema = z.infer<typeof commentSchema>
-// simulation of the comments table
-export const commentsTableSim: CommentSchema[] = []
 
 // Define the shape of the user payload from the JWT
 interface UserPayload {
@@ -63,9 +58,10 @@ export async function taskRoutes(app: FastifyTypeInstance) {
 
       tasksTableSim.push(task)
 
-      sendNotification(userExists.email, 'new_task', {
+      sendNotification(userExists.email, 'task_create', {
         task_name: title,
       })
+
       return rep.status(201).send(task)
     },
   )
@@ -150,6 +146,10 @@ export async function taskRoutes(app: FastifyTypeInstance) {
       if (description) task.description = description
       if (status) task.status = status
 
+      sendNotification(req.user.email, 'task_update', {
+        task_name: task.title,
+      })
+
       return rep.send(task)
     },
   )
@@ -172,12 +172,18 @@ export async function taskRoutes(app: FastifyTypeInstance) {
     async (req, rep) => {
       const { task_id } = req.params as { task_id: string }
       const taskIndex = tasksTableSim.findIndex((t) => t.task_id === task_id)
+      const task = tasksTableSim.find((t) => t.task_id === task_id)
 
       if (taskIndex === -1) {
         return rep.status(404).send({ message: 'Task not found' })
       }
 
       tasksTableSim.splice(taskIndex, 1)
+
+      sendNotification(req.user.email, 'task_deleted', {
+        task_name: task?.title,
+      })
+
       return rep.status(204).send()
     },
   )
@@ -219,6 +225,12 @@ export async function taskRoutes(app: FastifyTypeInstance) {
       }
 
       commentsTableSim.push(newComment)
+
+      sendNotification(req.user.email, 'task_comment_create', {
+        user_name: req.user.name,
+        task_name: task.title,
+      })
+
       return rep.status(201).send(newComment)
     },
   )
@@ -271,7 +283,7 @@ export async function taskRoutes(app: FastifyTypeInstance) {
       preHandler: ensureAuthenticated,
     },
     async (req, rep) => {
-      const { comment_id } = req.params
+      const { comment_id, task_id } = req.params
       const { comment } = req.body
 
       const commentToUpdate = commentsTableSim.find(
@@ -282,6 +294,13 @@ export async function taskRoutes(app: FastifyTypeInstance) {
       }
 
       commentToUpdate.comment = comment
+
+      const task = tasksTableSim.find((t) => t.task_id === task_id)
+
+      sendNotification(req.user.email, 'task_comment_updated', {
+        task_name: task?.title,
+      })
+
       return rep.send(commentToUpdate)
     },
   )
@@ -305,7 +324,7 @@ export async function taskRoutes(app: FastifyTypeInstance) {
       preHandler: ensureAuthenticated,
     },
     async (req, rep) => {
-      const { comment_id } = req.params
+      const { comment_id, task_id } = req.params
 
       const commentIndex = commentsTableSim.findIndex(
         (c) => c.comment_id === comment_id,
@@ -315,6 +334,13 @@ export async function taskRoutes(app: FastifyTypeInstance) {
       }
 
       commentsTableSim.splice(commentIndex, 1)
+
+      const task = tasksTableSim.find((t) => t.task_id === task_id)
+
+      sendNotification(req.user.email, 'task_comment_deleted', {
+        task_name: task?.title,
+      })
+
       return rep.status(204).send()
     },
   )

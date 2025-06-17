@@ -4,7 +4,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { createUserHandler } from '../../src/controllers/user.controller'
 import { UserSchema } from '../../src/schemas/user.schema'
-import { usersTableSim } from '../../src/routes/users.routes'
+import { usersTableSim } from '../../src/db/db'
 import { hash } from 'bcrypt'
 import { randomUUID } from 'node:crypto'
 
@@ -22,12 +22,12 @@ describe('User Handlers (Unit Tests)', () => {
     // Limpa a "tabela" e reseta os mocks
     usersTableSim.length = 0
     vi.resetAllMocks()
-    
+
     // Mock do objeto reply do Fastify
     mockReply = {
       code: vi.fn().mockReturnThis(),
       send: vi.fn(),
-      status: vi.fn().mockReturnThis()
+      status: vi.fn().mockReturnThis(),
     }
   })
 
@@ -69,20 +69,20 @@ describe('User Handlers (Unit Tests)', () => {
     const existingEmail = 'existing@example.com'
     // Adiciona um usuário com o mesmo email ao "banco"
     usersTableSim.push({
-        user_id: 'any-id',
-        name: 'Existing User',
-        email: existingEmail,
-        password: 'any-password',
-        is_deleted: false,
-        created_at: new Date()
+      user_id: 'any-id',
+      name: 'Existing User',
+      email: existingEmail,
+      password: 'any-password',
+      is_deleted: false,
+      created_at: new Date(),
     })
 
     mockRequest = {
-        body: {
-            name: "Another User",
-            email: existingEmail, // Tenta criar com o mesmo email
-            password: "password123"
-        } as UserSchema
+      body: {
+        name: 'Another User',
+        email: existingEmail, // Tenta criar com o mesmo email
+        password: 'password123',
+      } as UserSchema,
     }
 
     // Act
