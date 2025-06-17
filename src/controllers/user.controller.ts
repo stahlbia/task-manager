@@ -27,6 +27,7 @@ export async function createUserHandler(
       email,
       password: hasedPassword,
       is_deleted: false,
+      created_at: new Date()
     }
     
     usersTableSim.push(user)

@@ -54,5 +54,5 @@ app.addHook('preHandler', (req, res, next) => {
 
 app.listen({ port: 3333 }).then(() => {
   console.log('HTTP server running!')
-  open('http://localhost:3333/docs')
+  // open('http://localhost:3333/docs')
 })

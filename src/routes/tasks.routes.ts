@@ -146,7 +146,7 @@ export async function taskRoutes(app: FastifyTypeInstance) {
       if (description) task.description = description
       if (status) task.status = status
 
-      sendNotification(req.user.email, 'task_update', {
+      sendNotification(req.loggedUser.email, 'task_update', {
         task_name: task.title,
       })
 
@@ -180,7 +180,7 @@ export async function taskRoutes(app: FastifyTypeInstance) {
 
       tasksTableSim.splice(taskIndex, 1)
 
-      sendNotification(req.user.email, 'task_deleted', {
+      sendNotification(req.loggedUser.email, 'task_deleted', {
         task_name: task?.title,
       })
 
@@ -226,8 +226,8 @@ export async function taskRoutes(app: FastifyTypeInstance) {
 
       commentsTableSim.push(newComment)
 
-      sendNotification(req.user.email, 'task_comment_create', {
-        user_name: req.user.name,
+      sendNotification(req.loggedUser.email, 'task_comment_create', {
+        user_name: req.loggedUser.name,
         task_name: task.title,
       })
 
@@ -297,7 +297,7 @@ export async function taskRoutes(app: FastifyTypeInstance) {
 
       const task = tasksTableSim.find((t) => t.task_id === task_id)
 
-      sendNotification(req.user.email, 'task_comment_updated', {
+      sendNotification(req.loggedUser.email, 'task_comment_updated', {
         task_name: task?.title,
       })
 
@@ -337,7 +337,7 @@ export async function taskRoutes(app: FastifyTypeInstance) {
 
       const task = tasksTableSim.find((t) => t.task_id === task_id)
 
-      sendNotification(req.user.email, 'task_comment_deleted', {
+      sendNotification(req.loggedUser.email, 'task_comment_deleted', {
         task_name: task?.title,
       })
 

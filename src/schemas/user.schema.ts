@@ -10,7 +10,7 @@ export const userSchema = z.object({
     .string()
     .min(8, { message: 'Password must be at least 8 characters long' }),
   is_deleted: z.boolean().default(false),
-  created_at: z.date(),
+  created_at: z.date().default(new Date()),
 })
 
 export type UserSchema = z.infer<typeof userSchema>
