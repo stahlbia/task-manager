@@ -12,13 +12,6 @@ export async function createUserHandler(
 ) {
   const { name, email, password } = request.body
 
-  // TODO: conferir se o email já está cadastrado no banco de dados
-  // const userWithSameEmail = await knex('users').where({ email }).first()
-
-  // if (userWithSameEmail) {
-  //   throw new AppError('User already exists')
-  // }
-
   const userWithSameEmail = usersTableSim.find((user) => user.email === email)
   if (userWithSameEmail) {
     return reply.code(409).send('User already exists')
@@ -34,10 +27,7 @@ export async function createUserHandler(
       password: hasedPassword,
       is_deleted: false,
     }
-
-    // TODO: add user na tabela
-    // const addedUser = await knex('users').insert(user).returning('*')
-    // const { password: _, userWithoutPassword } = addedUser
+    
     usersTableSim.push(user)
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

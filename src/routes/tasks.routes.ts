@@ -9,10 +9,7 @@ import { sendNotification } from '../middlewares/send-notification.middleware'
 // Simulação do "banco" de tarefas
 export const tasksTableSim: TaskSchema[] = []
 
-//simulation of the comments table
-export const commentsTableSim: CommentSchema[] = []
-
-//schema for a single comment
+// schema for a single comment
 const commentSchema = z.object({
   comment_id: z.string().uuid(),
   task_id: z.string().uuid(),
@@ -21,12 +18,14 @@ const commentSchema = z.object({
   created_at: z.date(),
 })
 
-//Define the shape of the user payload from the JWT 
+type CommentSchema = z.infer<typeof commentSchema>
+// simulation of the comments table
+export const commentsTableSim: CommentSchema[] = []
+
+// Define the shape of the user payload from the JWT
 interface UserPayload {
   user_id: string
 }
-
-type CommentSchema = z.infer<typeof commentSchema>
 
 export async function taskRoutes(app: FastifyTypeInstance) {
   // POST /tasks
@@ -183,10 +182,9 @@ export async function taskRoutes(app: FastifyTypeInstance) {
     },
   )
 
+  // task comments CRUD
 
-//task comments CRUD
-
-//POST /tasks/:task_id/comments
+  // POST /tasks/:task_id/comments
   app.post(
     '/tasks/:task_id/comments',
     {
@@ -206,7 +204,7 @@ export async function taskRoutes(app: FastifyTypeInstance) {
       const { task_id } = req.params
       const { comment } = req.body
       const { user_id } = req.user as UserPayload
-      
+
       const task = tasksTableSim.find((t) => t.task_id === task_id)
       if (!task) {
         return rep.status(404).send({ message: 'Task not found' })
@@ -248,9 +246,7 @@ export async function taskRoutes(app: FastifyTypeInstance) {
         return rep.status(404).send({ message: 'Task not found' })
       }
 
-      const comments = commentsTableSim.filter(
-        (c) => c.task_id === task_id,
-      )
+      const comments = commentsTableSim.filter((c) => c.task_id === task_id)
       return rep.send(comments)
     },
   )

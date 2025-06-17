@@ -13,13 +13,6 @@ export async function loginHandler(
 ) {
   const { email, password } = req.body
 
-  // TODO: mudar para uma pesquisa no banco de dados
-  // const userWithEmailAddress = await knex('users').where({ email }).first()
-
-  // if (!userWithEmailAddress) {
-  //   throw new AppError('invalid email or password', 401)
-  // }
-
   const user = await usersTableSim.find((user) => user.email === email)
   const isMatch = user && (await compare(password, user.password))
   if (!user || !isMatch) {
