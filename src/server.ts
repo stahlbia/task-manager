@@ -8,6 +8,8 @@ import {
 } from 'fastify-type-provider-zod'
 import fastifySwagger from '@fastify/swagger'
 import fastifySwaggerUi from '@fastify/swagger-ui'
+import { knex } from './database'
+
 import { userRoutes } from './routes/users.routes'
 import open from 'open'
 import FastifyJwt from '@fastify/jwt'
