@@ -45,11 +45,9 @@ export async function taskRoutes(app: FastifyTypeInstance) {
 
       tasksTableSim.push(task)
 
-      sendNotification(
-        userExists.email,
-        'New task assigned',
-        `You have been assigned a new task: ${title}`,
-      )
+      sendNotification(userExists.email, 'new_task', {
+        task_name: title,
+      })
       return rep.status(201).send(task)
     },
   )

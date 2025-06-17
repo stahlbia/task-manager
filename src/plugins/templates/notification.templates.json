@@ -1,0 +1,57 @@
+[
+    {
+        "type": "welcome_msg",
+        "message": "Welcome to Task Manager, {user_name}! We're excited to have you on board. Start organizing your tasks today!",
+        "placeholders": ["user_name"]
+    },
+    {
+        "type": "profile_update",
+        "message": "Your profile information has been successfully updated. If you didn't make this change, please contact support immediately.",
+        "placeholders": []
+    },
+    {
+        "type": "account_deactivation",
+        "message": "Your account has been deactivated. If this was a mistake, please contact support to reactivate it.",
+        "placeholders": []
+    },
+    {
+        "type": "new_task",
+        "message": "You have been assigned a new task: {task_name}.",
+        "placeholders": ["task_name"]
+    },
+    {
+        "type": "task_update",
+        "message": "The task {task_name} has been updated. Check the latest details to stay on track.",
+        "placeholders": ["task_name"]
+    },
+    {
+        "type": "task_completed",
+        "message": "The task {task_name} has been marked as completed. Great job!",
+        "placeholders": ["task_name"]
+    },
+    {
+        "type": "task_deleted",
+        "message": "The task {task_name} has been deleted. If this was a mistake, contact your team.",
+        "placeholders": ["task_name"]
+    },
+    {
+        "type": "task_reassigned",
+        "message": "The task {task_name} has been reassigned to {new_assignee}. You are no longer responsible for it.",
+        "placeholders": ["task_name", "new_assignee"]
+    },
+    {
+        "type": "new_task_comment",
+        "message": "{user_name} commented on the task {task_name}",
+        "placeholders": ["user_name", "task_name"]
+    },
+    {
+        "type": "task_comment_updated",
+        "message": "A comment on the task {task_name} has been updated",
+        "placeholders": ["task_name"]
+    },
+    {
+        "type": "task_comment_deleted",
+        "message": "A comment on the task {task_name} has been deleted.",
+        "placeholders": ["task_name"]
+    }
+]
