@@ -49,69 +49,66 @@ npm start
 ``` md
 project-root/
 │
-├── collection/                  # Requests para a API feita com o Bruno
+├── collection/                         # Requests para a API feita com o Bruno
 │
-├── docs/                        # Arquivos utilizados na documentação, como imagens
+├── docs/                               # Arquivos utilizados na documentação, como imagens
 │
 ├── src/
-│   ├── configs/                 # Configurações para roda de autenticação
-│   │   ├── auth.config.ts
-│
-│   ├── controllers/             # Lógica dos endpoints HTTP
+│   ├── controllers/                    # Lógica dos endpoints HTTP
 │   │   ├── auth.controller.ts
 │   │   ├── task.controller.ts
 │   │   └── user.controller.ts
 │
-│   ├── routes/                  # Registro das rotas no Fastify
+│   ├── routes/                         # Registro das rotas no Fastify
 │   │   ├── auth.routes.ts
 │   │   ├── task.routes.ts
 │   │   └── user.routes.ts
 │
-│   ├── schemas/                 # Validação e tipagem com Zod
+│   ├── schemas/                        # Validação e tipagem com Zod
 │   │   └── auth.schema.ts
 │   │   ├── task.schema.ts
 │   │   ├── user.schema.ts
 │
-│   ├── models/                  # Mapeamento de dados (ORM ou SQL)
+│   ├── models/                         # Mapeamento de dados (ORM ou SQL)
 │   │   ├── task.model.ts
 │   │   ├── user.model.ts
 │   │   └── comment.model.ts
 │
-│   ├── services/                # Regras de negócio (camada intermediária)
+│   ├── services/                       # Regras de negócio (camada intermediária)
 │   │   ├── task.service.ts
 │   │   ├── user.service.ts
 │   │   ├── auth.service.ts
-│   │   └── notification.service.ts   # Novo serviço para envio de notificações por e-mail
+│   │   └── notification.service.ts     # Novo serviço para envio de notificações por e-mail
 │
-│   ├── notifications/           # Lógica de envio de e-mails (integração com SMTP, Mailgun, etc)
-│   │   ├── emailClient.ts        # Configuração do transporte de e-mails (nodemailer, etc)
-│   │   └── templates/            # Templates de e-mail (HTML/TXT)
+│   ├── notifications/                  # Lógica de envio de e-mails (integração com SMTP, Mailgun, etc)
+│   │   ├── emailClient.ts              # Configuração do transporte de e-mails (nodemailer, etc)
+│   │   └── templates/                  # Templates de e-mail (HTML/TXT)
 │   │       ├── taskUpdated.html
 │   │       └── welcomeUser.html
 │
-│   ├── db/                      # Conexão com o banco (PostgreSQL)
+│   ├── db/                             # Conexão com o banco (PostgreSQL)
 │   │   ├── client.ts
 │   │   └── migrations/
 │
-│   ├── middlewares/             # Autenticação, erros, permissões
+│   ├── middlewares/                    # Autenticação, erros, permissões
 │   │   ├── auth.middleware.ts
 │   │   └── error.middleware.ts
 │
-│   ├── plugins/                 # Plugins do Fastify (CORS, JWT, etc)
+│   ├── plugins/                        # Plugins do Fastify (CORS, JWT, etc)
 │   │   ├── auth.plugin.ts
 │   │   ├── swagger.plugin.ts
 │   │   └── zod.plugin.ts
 │
-│   ├── openapi/                 # Arquivos OpenAPI/Swagger
+│   ├── openapi/                        # Arquivos OpenAPI/Swagger
 │   │   └── openapi.yaml
 │
-│   ├── utils/                   # Helpers, formatação, tokens, etc.
+│   ├── utils/                          # Helpers, formatação, tokens, etc.
 │   │   ├── jwt.ts
 │   │   └── formatDate.ts
 │
-│   └── server.ts                # Inicia o servidor
+│   └── server.ts                       # Inicia o servidor
 │
-├── tests/                       # Testes com Jest
+├── tests/                              # Testes com Jest
 │   ├── unit/
 │   │   ├── task.service.test.ts
 │   │   └── notification.service.test.ts
@@ -128,36 +125,6 @@ project-root/
 ## Estrutura do Banco de Dados
 
 ![alt text](docs/images/db-logic.png)
-
-### users table
-
-- user_id: string, required, uuid, unique
-- name: string
-- email: string, required, unique
-- password_hash: string, required
-- password_salt: string, required
-- updated_at: timestamp, required
-- created_at: timestamp, required
-
-### tasks table
-
-- task_id: string, required, uuid, unique
-- title: string, required
-- description: string
-- created_at: timestamp, required
-- updated_at: timestamp, required
-- status: string, required
-- created_by: string, uuid, required, FK from users_table
-- assigned_to: string, uuid, required, FK from users_table
-
-### comments table
-
-- comment_id: string, required, uuid, unique
-- content: string, required
-- created_at: timestamp, required
-- updated_at: timestamp, required
-- task_id: string, uuid, required, FK from tasks_table
-- user_id: string, uuid, required, FK from users_table
 
 ## Stack do Projeto
 
@@ -193,34 +160,6 @@ Framework de testes em JavaScript/TypeScript, utilizado para escrever e executar
 
 Biblioteca para hashing de senhas, utilizada para garantir a segurança das credenciais dos usuários, protegendo-as contra acessos não autorizados.
 
-## Construção da API - Endpoints
-
-### users
-
-- GET       http://{{host}}/api/v1/users
-- GET       http://{{host}}/api/v1/users{user_id}
-- POST      http://{{host}}/api/v1/users
-- PATCH     http://{{host}}/api/v1/users{user_id}
-- DELETE    http://{{host}}/api/v1/users{user_id}
-
-### tasks / comments
-
-- GET       http://{{host}}/api/v1/tasks
-- GET       http://{{host}}/api/v1/tasks{task_id}
-- GET       http://{{host}}/api/v1/tasks{task_id}/comments
-- GET       http://{{host}}/api/v1/tasks{task_id}/comments/{comment_id}
-- POST      http://{{host}}/api/v1/tasks
-- POST      http://{{host}}/api/v1/tasks{task_id}/comments
-- PATCH     http://{{host}}/api/v1/tasks{task_id}
-- PATCH     http://{{host}}/api/v1/tasks{task_id}/comments/{comment_id}
-- DELETE    http://{{host}}/api/v1/tasks{task_id}
-- DELETE    http://{{host}}/api/v1/tasks{task_id}/comments/{comment_id}
-
-### auth
-
-- POST      http://{{host}}/api/v1/auth/login
-- POST      http://{{host}}/api/v1/auth/logout
-
 ## User's Happy Paths
 
 1. Criar uma conta
@@ -232,23 +171,3 @@ Biblioteca para hashing de senhas, utilizada para garantir a segurança das cred
 7. Adicionar outro comentário na tarefa dizendo "Focar na parte prática"
 8. Atualizar o status da tarefa para "done"
 9. Fazer logout do sistema
-
-## Tarefas para fazer
-
-Emanu:
-
-- [ ] Implementar o banco de dados com PostgreSQL (quem sabe através de migrations) -> Emanuzita
-- [ ] Implementar API CRUD para comentários de taferas -> Emanuzita
-- [ ] Implementar testes unitários - Emanuzita
-
-Gabriela:
-
-- [X] Implementar API CRUD para usuários -> Gabrela
-- [X] Implementar API CRUD para tarefas -> Gabrela
-- [ ] Implementar testes de integração - Gabrela
-
-Bia:
-
-- [X] Implementar API para autenticação -> Bia
-- [X] Definir happy paths -> Bia
-- [ ] Implementar notificação através de emails

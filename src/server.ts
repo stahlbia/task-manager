@@ -8,7 +8,7 @@ import {
 } from 'fastify-type-provider-zod'
 import fastifySwagger from '@fastify/swagger'
 import fastifySwaggerUi from '@fastify/swagger-ui'
-import { knex } from './database'
+// import { knex } from './database'
 
 import { userRoutes } from './routes/users.routes'
 import open from 'open'
@@ -20,13 +20,10 @@ import { env } from './env'
 
 const app = fastify().withTypeProvider<ZodTypeProvider>()
 
-// seta o zod para validar de todos os dados de entrada
 app.setValidatorCompiler(validatorCompiler)
-// seta o zod para serializar todos os dados de saida
 app.setSerializerCompiler(serializerCompiler)
 // app.setErrorHandler(errorHandling)
 
-// registra o pluging do cors e libera ele para todos os endpoints
 app.register(fastifyCors, { origin: '*' })
 
 app.register(fastifySwagger, {
