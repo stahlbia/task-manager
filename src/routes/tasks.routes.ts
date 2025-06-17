@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto'
 import { taskSchema, TaskSchema } from '../schemas/tasks.schema'
 import { usersTableSim } from './users.routes'
 import { ensureAuthenticated } from '../middlewares/auth-handling.middleware'
-import { NotificationService } from '../services/notification.service'
+import { sendNotification } from '../middlewares/send-notification.middleware'
 
 // Simulação do "banco" de tarefas
 export const tasksTableSim: TaskSchema[] = []
@@ -45,7 +45,7 @@ export async function taskRoutes(app: FastifyTypeInstance) {
 
       tasksTableSim.push(task)
 
-      NotificationService.sendNotification(
+      sendNotification(
         userExists.email,
         'New task assigned',
         `You have been assigned a new task: ${title}`,
