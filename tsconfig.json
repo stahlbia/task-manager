@@ -12,6 +12,8 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "moduleResolution": "node16",
+
+    "types": ["vitest/globals", "node"],
     "resolveJsonModule": true
   }
 }
