@@ -7,6 +7,7 @@ import type {
 } from 'fastify'
 import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { JWT } from '@fastify/jwt'
+import { UserSchema } from '../schemas/user.schema'
 
 export type FastifyTypeInstance = FastifyInstance<
   RawServerDefault,
@@ -19,5 +20,6 @@ export type FastifyTypeInstance = FastifyInstance<
 declare module 'fastify' {
   interface FastifyRequest {
     jwt: JWT
+    loggedUser: UserSchema
   }
 }

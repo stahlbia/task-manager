@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { LoginInput, LogoutInput } from '../schemas/auth.schema'
-import { usersTableSim } from '../routes/users.routes'
+import { usersTableSim } from '../db/db'
 import { compare } from 'bcrypt'
 import { env } from '../env'
 
@@ -12,13 +12,6 @@ export async function loginHandler(
   rep: FastifyReply,
 ) {
   const { email, password } = req.body
-
-  // TODO: mudar para uma pesquisa no banco de dados
-  // const userWithEmailAddress = await knex('users').where({ email }).first()
-
-  // if (!userWithEmailAddress) {
-  //   throw new AppError('invalid email or password', 401)
-  // }
 
   const user = await usersTableSim.find((user) => user.email === email)
   const isMatch = user && (await compare(password, user.password))

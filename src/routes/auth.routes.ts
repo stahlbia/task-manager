@@ -8,9 +8,6 @@ import { loginHandler, logoutHandler } from '../controllers/auth.controller'
 import z from 'zod'
 import { ensureAuthenticated } from '../middlewares/auth-handling.middleware'
 
-// simulacao do banco
-// const authTokens: LoginInput[] = []
-
 export async function authRoutes(app: FastifyTypeInstance) {
   app.post(
     '/login',

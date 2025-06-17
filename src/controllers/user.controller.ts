@@ -2,7 +2,8 @@ import { FastifyReply, FastifyRequest } from 'fastify'
 import { UserSchema } from '../schemas/user.schema'
 import { randomUUID } from 'node:crypto'
 import { hash } from 'bcrypt'
-import { usersTableSim } from '../routes/users.routes'
+import { usersTableSim } from '../db/db'
+import { sendNotification } from '../middlewares/send-notification.middleware'
 
 const SALT_ROUNDS = 10
 
@@ -11,13 +12,6 @@ export async function createUserHandler(
   reply: FastifyReply,
 ) {
   const { name, email, password } = request.body
-
-  // TODO: conferir se o email já está cadastrado no banco de dados
-  // const userWithSameEmail = await knex('users').where({ email }).first()
-
-  // if (userWithSameEmail) {
-  //   throw new AppError('User already exists')
-  // }
 
   const userWithSameEmail = usersTableSim.find((user) => user.email === email)
   if (userWithSameEmail) {
@@ -33,12 +27,12 @@ export async function createUserHandler(
       email,
       password: hasedPassword,
       is_deleted: false,
+      created_at: new Date()
     }
-
-    // TODO: add user na tabela
-    // const addedUser = await knex('users').insert(user).returning('*')
-    // const { password: _, userWithoutPassword } = addedUser
+    
     usersTableSim.push(user)
+
+    sendNotification(user.email, 'user_created', {user_name: user.name})
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...userWithoutPassword } = user
