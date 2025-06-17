@@ -24,13 +24,16 @@
     "@types/node": "^22.15.17",
     "eslint": "^8.57.1",
     "tsx": "^4.19.4",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
   },
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
-    "lint": "eslint src --ext .ts"
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint src --ext .ts",
+    "test": "vitest",
+    "test:unit": "vitest --dir tests/unit"
   },
   "repository": {
     "type": "git",
