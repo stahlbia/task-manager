@@ -40,10 +40,6 @@ app.register(fastifySwaggerUi, {
 app.register(userRoutes, { prefix: '/api/v1' })
 app.register(authRoutes, { prefix: '/api/v1' })
 app.register(taskRoutes, { prefix: '/api/v1' })
-app.get('/table_infos', async () => {
-    const tables = await knex('sqlite_schema').select('*')
-    return tables
-})
 
 // jwt
 app.register(fjwt, { secret: 'supersecretcode-CHANGE_THIS-USE_ENV_FILE' })
