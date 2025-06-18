@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Desenvolver uma API para um sistema de Gestão de Tarefas Colaborativas, permitindo que usuários criem, editem, atribuam e concluam tarefas. A API seguirá uma arquitetura MVC, e implementará duas features adicionais como comentários em tarefas e sistema de notificação conforme os itens são atualizados.
+Desenvolver uma API para um sistema de Gestão de Tarefas Colaborativas, permitindo que usuários criem, editem, atribuam e concluam tarefas. A API seguirá uma arquitetura MVC, e `implementará duas features adicionais como comentários em tarefas e sistema de notificação conforme os itens são atualizado`.
 
 ## Pre-requisitos
 
@@ -164,55 +164,3 @@ Framework de testes rápido e moderno, inspirado no Jest, com suporte nativo a T
 ### 🔒 Bcrypt
 
 Biblioteca para hashing de senhas, utilizada para garantir a segurança das credenciais dos usuários, protegendo-as contra acessos não autorizados.
-
-## User's Happy Paths
-
-1. Criar uma conta
-2. Fazer login
-3. Criar uma tarefa com o nome "Entregar trabalho da faculadade"
-4. Verificar a lista de tarefas
-5. Adicionar um comentário na tarefa criada que diz "Focar na parte teórica"
-6. Atualizar o status da tarefa para "in progress"
-7. Adicionar outro comentário na tarefa dizendo "Focar na parte prática"
-8. Atualizar o status da tarefa para "done"
-9. Fazer logout do sistema
-
-## Roteiro para demo
-
-### Usuários
-
-- Criar um novo usuário
-- Tentar criar um usuário duplicado
-- Criar um segundo usuário
-- Listar todos os usuários criados
-- Pegar apenas um usuário
-- Editar uma informação em uma conta de usuário
-- Deletar um usuário extra
-
-## Autenticação
-
-- Tentar pegar a lista de usuários sem autenticação
-- Tentar autenticar com um usuário que não existe
-- Tentar fazer logout sem estar logado
-- Autenticar com o usuário que existe
-- Pegar a lista de usuários com autenticação
-- Fazer logout
-- Tentar pegar a lista de usuários sem autenticação
-
-### Tarefas
-
-- Criar uma tarefa
-- Criar uma segunda tarefa
-- Listar tarefas
-- Pegar uma tarefa pelo id
-- Editar uma informação em uma tarefa
-- Deletar uma tarefa
-
-## Comentários
-
-- Criar um comentário em uma tarefa
-- Criar um comentário em outra tarefa
-- Pegar todos os comentários
-- Pegar um comentário pelo id
-- Editar um comentário
-- Deletar um comentário
