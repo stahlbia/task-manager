@@ -1,30 +1,35 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { compare, hash } from 'bcrypt'
 import { usersTableSim } from '../db/dbSimulator'
-import { compare } from 'bcrypt'
 import { env } from '../env'
-import { FastifyInstance } from 'fastify'
+import { TokenPayload } from '../schemas/auth.schema'
+import { UserWithoutSensitiveInfoSchema } from '../schemas/user.schema'
 
-export class AuthService {
-  static async login(email: string, password: string, app: FastifyInstance) {
-    const user = usersTableSim.find((u) => u.email === email)
-    if (!user || !(await compare(password, user.password))) {
-      throw new Error('Invalid email or password')
-    }
+// In-memory blacklist
+const tokenBlacklist = new Set<string>()
 
-    const token = app.jwt.sign({
-      user_id: user.user_id,
-      expiresIn: env.EXPIRES_IN,
-    })
-    return { token, user }
+export async function login(
+  email: string,
+  password: string,
+): Promise<{ payload: TokenPayload; user: UserWithoutSensitiveInfoSchema }> {
+  const user = await usersTableSim.find((u) => u.email === email)
+  const isMatch = user && (await compare(password, user.password_hash))
+  if (!isMatch) throw new Error('Invalid email or password')
+
+  const payload: TokenPayload = {
+    user_id: user.user_id,
+    expiresIn: env.EXPIRES_IN,
   }
 
-  static async logout(token: string, tokenBlacklist: Set<string>) {
-    tokenBlacklist.add(token)
-  }
+  const { password_hash, password_salt, ...userWithoutPassword } = user
+  return { payload, user: userWithoutPassword }
+}
 
-  static isTokenBlacklisted(
-    token: string,
-    tokenBlacklist: Set<string>,
-  ): boolean {
-    return tokenBlacklist.has(token)
-  }
+export async function logout(token: string | undefined) {
+  if (!token) throw new Error('User not logged in')
+  tokenBlacklist.add(token)
+}
+
+export function isTokenBlacklisted(token: string): boolean {
+  return tokenBlacklist.has(token)
 }

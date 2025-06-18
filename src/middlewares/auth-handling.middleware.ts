@@ -1,8 +1,8 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { TokenPayload } from '../schemas/auth.schema'
-import { isTokenBlacklisted } from '../controllers/auth.controller'
 import { usersTableSim } from '../db/dbSimulator'
 import { UserSchema } from '../schemas/user.schema'
+import { isTokenBlacklisted } from '../models/auth.model'
 
 export async function ensureAuthenticated(
   req: FastifyRequest,

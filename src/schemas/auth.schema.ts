@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { completeUserSchema } from './user.schema'
+import { userWithoutSensitiveInfoSchema } from './user.schema'
 
 export const loginSchema = z.object({
   email: z
@@ -15,20 +15,14 @@ export type LoginInput = z.infer<typeof loginSchema>
 
 export const loginResponseSchema = z.object({
   accessToken: z.string(),
-  user: completeUserSchema.omit({ password: true }),
+  user: userWithoutSensitiveInfoSchema,
 })
 
 export type LoginResponse = z.infer<typeof loginResponseSchema>
 
-export const logoutSchema = z.object({
-  user_id: z.string().uuid(),
-})
-
-export type LogoutInput = z.infer<typeof logoutSchema>
-
 export const tokenPayload = z.object({
   user_id: z.string().uuid(),
-  expiresIn: z.number(),
+  expiresIn: z.string(),
 })
 
 export type TokenPayload = z.infer<typeof tokenPayload>
