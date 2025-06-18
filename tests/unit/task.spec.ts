@@ -12,7 +12,7 @@ import {
 } from '../../src/controllers/task.controller'
 
 vi.mock('../../src/models/task.model')
-vi.mock('../../src/middlewares/send-notification.middleware')
+vi.mock('../../src/plugins/send-notification.plugin')
 vi.mock('../../src/middlewares/error-handling.middleware')
 
 describe('Task Handlers (Unit Tests)', () => {

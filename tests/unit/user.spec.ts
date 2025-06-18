@@ -12,7 +12,7 @@ import {
 } from '../../src/controllers/user.controller'
 
 vi.mock('../../src/models/user.model')
-vi.mock('../../src/middlewares/send-notification.middleware')
+vi.mock('../../src/plugins/send-notification.plugin')
 vi.mock('../../src/middlewares/error-handling.middleware')
 
 describe('User Handlers (Unit Tests)', () => {
