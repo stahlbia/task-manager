@@ -143,7 +143,7 @@ export async function taskRoutes(app: FastifyTypeInstance) {
       schema: {
         tags: ['comments'],
         description: 'Add a comment to a task',
-        params: paramsCommentSchema,
+        params: paramsTaskSchema,
         body: createUpdateCommentSchema,
         response: {
           201: completeCommentSchema.describe('Created comment'),
@@ -165,7 +165,7 @@ export async function taskRoutes(app: FastifyTypeInstance) {
       schema: {
         tags: ['comments'],
         description: 'List all comments for a task',
-        params: paramsCommentSchema,
+        params: paramsTaskSchema,
         response: {
           200: z
             .array(completeCommentSchema)

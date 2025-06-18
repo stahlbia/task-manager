@@ -1,22 +1,20 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { usersTableSim } from '../db/dbSimulator'
 import {
   CreateUserInput,
   UpdateUserInput,
   UserSchema,
   UserWithoutSensitiveInfoSchema,
 } from '../schemas/user.schema'
-import { randomUUID, randomBytes } from 'crypto'
+import { randomUUID } from 'crypto'
 import { genSalt, hash } from 'bcrypt'
 import { knex } from '../database'
-import { K } from 'vitest/dist/chunks/reporters.d.BFLkQcL6.js'
 
 export async function createUser(
   data: CreateUserInput,
 ): Promise<UserWithoutSensitiveInfoSchema> {
   const { name, email, password } = data
 
-  const userExists = await knex('users').where({ email }).select('*').first()
+  const userExists = await findUserByEmail(email)
   if (userExists) throw new Error('User already exists')
 
   const salt = await genSalt()
@@ -67,12 +65,7 @@ export async function getUserById(
 
   if (!user) throw new Error('User not found')
 
-  const transformedUser = {
-    ...user,
-    is_deleted: Boolean(user.is_deleted),
-    updated_at: new Date(user.updated_at),
-    created_at: new Date(user.created_at),
-  }
+  const transformedUser = transformUser(user)
   const { password_hash, password_salt, ...userWithoutPassword } =
     transformedUser
   return userWithoutPassword
@@ -104,12 +97,7 @@ export async function updateUser(
     .select('*')
     .first()
 
-  const transformedUser = {
-    ...updatedUser,
-    is_deleted: Boolean(updatedUser.is_deleted),
-    updated_at: new Date(updatedUser.updated_at),
-    created_at: new Date(updatedUser.created_at),
-  }
+  const transformedUser = transformUser(updatedUser)
   const { password_hash, password_salt, ...userWithoutPassword } =
     transformedUser
   return userWithoutPassword
@@ -124,17 +112,12 @@ export async function deleteUser(
 
   await knex('users').where('user_id', user_id).update('is_deleted', true)
   await knex('users').where('user_id', user_id).update('updated_at', new Date())
-  const deleted = await knex('users')
+  const deletedUser = await knex('users')
     .where('user_id', user_id)
     .select('*')
     .first()
 
-  const transformedUser = {
-    ...deleted,
-    is_deleted: Boolean(deleted.is_deleted),
-    updated_at: new Date(deleted.updated_at),
-    created_at: new Date(deleted.created_at),
-  }
+  const transformedUser = transformUser(deletedUser)
   const { password_hash, password_salt, ...userWithoutPassword } =
     transformedUser
   return userWithoutPassword
@@ -144,4 +127,26 @@ async function findUserById(user_id: string) {
   return await (
     await knex('users')
   ).find((u) => u.user_id === user_id && !u.is_deleted)
+}
+
+function transformUser(user: UserSchema) {
+  return {
+    ...user,
+    is_deleted: Boolean(user.is_deleted),
+    updated_at: new Date(user.updated_at),
+    created_at: new Date(user.created_at),
+  }
+}
+
+async function findUserByEmail(email: string) {
+  return await knex('users').where({ email }).select('*').first()
+}
+
+export async function getUserByEmail(email: string): Promise<UserSchema> {
+  const user = await findUserByEmail(email)
+
+  if (!user) throw new Error('User not found')
+
+  const transformedUser = transformUser(user)
+  return transformedUser
 }

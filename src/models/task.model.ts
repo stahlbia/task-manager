@@ -1,4 +1,4 @@
-import { commentsTableSim, tasksTableSim } from '../db/dbSimulator'
+import { knex } from '../database'
 import {
   CommentSchema,
   CreateTaskInput,
@@ -26,49 +26,80 @@ export async function createTask(
     created_at: dateNow,
   }
 
-  tasksTableSim.push(newTask)
+  await knex('tasks').insert(newTask)
 
   return newTask
 }
 
 export async function listTasks(user_id: string): Promise<TaskSchema[] | null> {
-  return tasksTableSim.filter((t) => t.assigned_to === user_id)
+  const tasks = await knex('tasks').where('user_id', user_id).select('*')
+  const transformedTasks = tasks.map((t) => ({
+    ...t,
+    updated_at: new Date(t.updated_at),
+    created_at: new Date(t.created_at),
+  }))
+  return transformedTasks
 }
 
 export async function getTaskById(task_id: string): Promise<TaskSchema> {
-  const task = findTaskById(task_id)
+  const task = await findTaskById(task_id)
   if (!task) throw new Error('Task not found')
-  return task
+  const transformedTask = transformTask(task)
+  return transformedTask
 }
 
 export async function updateTask(
   task_id: string,
   data: Partial<UpdateTaskInput>,
 ): Promise<TaskSchema> {
-  const task = findTaskById(task_id)
+  const task = await findTaskById(task_id)
   if (!task) throw new Error('Task not found')
 
-  if (data.title) task.title = data.title
-  if (data.description) task.description = data.description
-  if (data.status) task.status = data.status
-  if (data.assigned_to) task.assigned_to = data.assigned_to
+  if (data.title)
+    await knex('tasks').where('task_id', task_id).update('title', data.title)
+  if (data.description)
+    await knex('tasks')
+      .where('task_id', task_id)
+      .update('description', data.description)
+  if (data.status)
+    await knex('tasks').where('task_id', task_id).update('status', data.status)
+  if (data.assigned_to)
+    await knex('tasks')
+      .where('task_id', task_id)
+      .update('title', data.assigned_to)
 
-  return task
+  await knex('tasks').where('task_id', task_id).update('updated_at', new Date())
+  const updatedTask = await knex('tasks')
+    .where('task_id', task_id)
+    .select('*')
+    .first()
+
+  const transformedTask = transformTask(updatedTask)
+
+  return transformedTask
 }
 
 export async function deleteTask(task_id: string): Promise<TaskSchema> {
-  const task = findTaskById(task_id)
+  const task = await findTaskById(task_id)
   if (!task) throw new Error('Task not found')
 
-  const taskIndex = tasksTableSim.findIndex((t) => t.task_id === task_id)
+  await knex('tasks').where('task_id', task_id).delete()
 
-  tasksTableSim.splice(taskIndex, 1)
+  const transformedTask = transformTask(task)
 
-  return task
+  return transformedTask
 }
 
-function findTaskById(task_id: string) {
-  return tasksTableSim.find((t) => t.task_id === task_id)
+async function findTaskById(task_id: string) {
+  return await (await knex('tasks')).find((t) => t.task_id === task_id)
+}
+
+function transformTask(task: TaskSchema) {
+  return {
+    ...task,
+    updated_at: new Date(task.updated_at),
+    created_at: new Date(task.created_at),
+  }
 }
 
 // --- Comments functions ---
@@ -89,7 +120,7 @@ export async function createComment(
     user_id,
   }
 
-  commentsTableSim.push(newComment)
+  await knex('comments').insert(newComment)
 
   return newComment
 }
@@ -97,44 +128,70 @@ export async function createComment(
 export async function listComments(
   task_id: string,
 ): Promise<CommentSchema[] | null> {
-  return commentsTableSim.filter((c) => c.task_id === task_id)
+  const comments = await knex('comments').where('task_id', task_id).select('*')
+  const transformedComments = comments.map((c) => ({
+    ...c,
+    updated_at: new Date(c.updated_at),
+    created_at: new Date(c.created_at),
+  }))
+  return transformedComments
 }
 
 export async function getCommentById(
   comment_id: string,
 ): Promise<CommentSchema> {
-  const comment = findeCommentById(comment_id)
+  const comment = await findCommentById(comment_id)
   if (!comment) throw new Error('Comment not found')
-  return comment
+  const transformedComment = transformComment(comment)
+  return transformedComment
 }
 
 export async function updateComment(
   comment_id: string,
   data: Partial<CreateUpdateCommentInput>,
 ): Promise<CommentSchema> {
-  const comment = findeCommentById(comment_id)
+  const comment = await findCommentById(comment_id)
   if (!comment) throw new Error('Comment not found')
 
-  if (data.content) comment.content = data.content
+  if (data.content)
+    await knex('comments')
+      .where('comment_id', comment_id)
+      .update('content', data.content)
 
-  return comment
+  await knex('comments')
+    .where('comment_id', comment_id)
+    .update('updated_at', new Date())
+  const updatedComment = await knex('comments')
+    .where('comment_id', comment_id)
+    .select('*')
+    .first()
+
+  const transformedComment = transformComment(updatedComment)
+
+  return transformedComment
 }
 
 export async function deleteComment(
   comment_id: string,
 ): Promise<CommentSchema> {
-  const comment = findeCommentById(comment_id)
+  const comment = await findCommentById(comment_id)
   if (!comment) throw new Error('Comment not found')
 
-  const commentIndex = commentsTableSim.findIndex(
-    (c) => c.comment_id === comment_id,
-  )
+  await knex('comments').where('comment_id', comment_id).delete()
 
-  commentsTableSim.splice(commentIndex, 1)
+  const transformedComment = transformComment(comment)
 
-  return comment
+  return transformedComment
 }
 
-function findeCommentById(comment_id: string) {
-  return commentsTableSim.find((c) => c.comment_id === comment_id)
+async function findCommentById(comment_id: string) {
+  return await (await knex('comments')).find((c) => c.comment_id === comment_id)
+}
+
+function transformComment(comment: CommentSchema) {
+  return {
+    ...comment,
+    updated_at: new Date(comment.updated_at),
+    created_at: new Date(comment.created_at),
+  }
 }

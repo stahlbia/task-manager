@@ -4,6 +4,7 @@ import { usersTableSim } from '../db/dbSimulator'
 import { env } from '../env'
 import { TokenPayload } from '../schemas/auth.schema'
 import { UserWithoutSensitiveInfoSchema } from '../schemas/user.schema'
+import { getUserByEmail } from './user.model'
 
 // In-memory blacklist
 const tokenBlacklist = new Set<string>()
@@ -12,7 +13,7 @@ export async function login(
   email: string,
   password: string,
 ): Promise<{ payload: TokenPayload; user: UserWithoutSensitiveInfoSchema }> {
-  const user = await usersTableSim.find((u) => u.email === email)
+  const user = await getUserByEmail(email)
   const isMatch = user && (await compare(password, user.password_hash))
   if (!isMatch) throw new Error('Invalid email or password')
 
