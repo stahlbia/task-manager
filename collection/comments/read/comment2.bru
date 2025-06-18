@@ -1,0 +1,15 @@
+meta {
+  name: comment2
+  type: http
+  seq: 3
+}
+
+get {
+  url: http://{{task-manager.com}}/api/v1/tasks/{{task_id_1}}/comments/{{comment_id_2}}
+  body: none
+  auth: none
+}
+
+vars:post-response {
+  comment_id_1: res.body.comment_id
+}

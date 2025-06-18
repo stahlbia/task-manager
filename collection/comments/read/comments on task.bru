@@ -1,0 +1,11 @@
+meta {
+  name: comments on task
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://{{task-manager.com}}/api/v1/tasks/{{task_id_1}}/comments
+  body: none
+  auth: none
+}
