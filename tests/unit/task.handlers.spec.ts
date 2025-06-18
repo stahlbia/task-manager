@@ -8,7 +8,7 @@ import { deleteTaskHandler } from '../../src/controllers/task.controller'
 
 // 2. Importe os TIPOS/SCHEMAS dos seus arquivos .schema.ts
 import { UserSchema } from '../../src/schemas/user.schema'
-import { TaskSchema } from '../../src/schemas/tasks.schema'
+import { TaskSchema } from '../../src/schemas/task.schema'
 
 // 3. CORREÇÃO: Importe as TABELAS de simulação do seu novo arquivo de banco de dados
 import { usersTableSim, tasksTableSim } from '../../src/db/dbSimulator'

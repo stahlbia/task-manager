@@ -68,9 +68,9 @@ export async function updateUser(
   if (data.name) user.name = data.name
   if (data.email) user.email = data.email
   if (data.password) {
-    const salt_rounds = generateSalt()
-    user.password_hash = await hash(data.password, salt_rounds)
-    user.password_salt = salt_rounds
+    const salt = await genSalt()
+    user.password_hash = await hash(data.password, salt)
+    user.password_salt = salt
   }
 
   const { password_hash, password_salt, ...userWithoutPassword } = user
@@ -94,8 +94,4 @@ function findUserById(user_id: string) {
   return usersTableSim.find(
     (user) => user.user_id === user_id && !user.is_deleted,
   )
-}
-
-function generateSalt(length: number = 16): string {
-  return randomBytes(length).toString('hex')
 }

@@ -1,6 +1,6 @@
 import fastify from 'fastify'
-import { userRoutes } from '../src/routes/users.routes'
-import { taskRoutes } from '../src/routes/tasks.routes'
+import { userRoutes } from '../src/routes/user.routes'
+import { taskRoutes } from '../src/routes/task.routes'
 
 export async function buildApp() {
   const app = fastify()

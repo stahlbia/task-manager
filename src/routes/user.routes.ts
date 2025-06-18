@@ -5,7 +5,7 @@ import {
   createUserSchema,
   updateUserSchema,
   userWithoutSensitiveInfoSchema,
-  userParamSchema,
+  paramsUserSchema,
 } from '../schemas/user.schema'
 import {
   createUserHandler,
@@ -63,11 +63,9 @@ export async function userRoutes(app: FastifyTypeInstance) {
       schema: {
         tags: ['users'],
         description: 'Get an user by ID',
-        params: userParamSchema,
+        params: paramsUserSchema,
         response: {
-          200: userWithoutSensitiveInfoSchema.describe(
-            'User return successfully',
-          ),
+          200: userWithoutSensitiveInfoSchema.describe('Get one user'),
           401: z.object({ message: z.string() }).describe('Unauthorized'),
           404: z.object({ message: z.string() }).describe('User not found'),
           500: z
@@ -86,12 +84,10 @@ export async function userRoutes(app: FastifyTypeInstance) {
       schema: {
         tags: ['users'],
         description: 'Update a user',
-        params: userParamSchema,
+        params: paramsUserSchema,
         body: updateUserSchema,
         response: {
-          200: userWithoutSensitiveInfoSchema.describe(
-            'User updated successfully',
-          ),
+          200: userWithoutSensitiveInfoSchema.describe('Updated user'),
           401: z.object({ message: z.string() }).describe('Unauthorized'),
           404: z.object({ message: z.string() }).describe('User not found'),
           500: z
@@ -110,7 +106,7 @@ export async function userRoutes(app: FastifyTypeInstance) {
       schema: {
         tags: ['users'],
         description: 'Soft delete a user',
-        params: userParamSchema,
+        params: paramsUserSchema,
         response: {
           200: z
             .object({ message: z.string() })

@@ -2,7 +2,7 @@ import { FastifyReply, FastifyRequest } from 'fastify'
 import {
   CreateUserInput,
   UpdateUserInput,
-  UserParamsSchema,
+  ParamsUserSchema,
 } from '../schemas/user.schema'
 import { sendNotification } from '../middlewares/send-notification.middleware'
 import {
@@ -39,7 +39,7 @@ export async function listUsersHandler(req: FastifyRequest, rep: FastifyReply) {
 
 export async function getUserHandler(req: FastifyRequest, rep: FastifyReply) {
   try {
-    const { user_id } = req.params as UserParamsSchema
+    const { user_id } = req.params as ParamsUserSchema
     const user = await getUserById(user_id)
     return rep.status(201).send(user)
   } catch (error) {
@@ -55,7 +55,7 @@ export async function updateUserHandler(
   rep: FastifyReply,
 ) {
   try {
-    const { user_id } = req.params as { user_id: string }
+    const { user_id } = req.params as ParamsUserSchema
     const data = req.body as Partial<UpdateUserInput>
     const updatedUser = await updateUser(user_id, data)
     sendNotification(updatedUser.email, 'user_update')
@@ -73,7 +73,7 @@ export async function deleteUserHandler(
   rep: FastifyReply,
 ) {
   try {
-    const { user_id } = req.params as { user_id: string }
+    const { user_id } = req.params as ParamsUserSchema
     const deletedUser = await deleteUser(user_id)
     sendNotification(deletedUser.email, 'user_delete')
     return rep.status(204).send({ message: 'User deleted successfully!' })

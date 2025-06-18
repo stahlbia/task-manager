@@ -1,77 +1,204 @@
-// src/controllers/task.controller.ts
-
 import { FastifyRequest, FastifyReply } from 'fastify'
-import { randomUUID } from 'node:crypto'
-import { TaskSchema, TaskStatus } from '../schemas/tasks.schema'
-// CORREÇÃO: Importando as tabelas da nova fonte central de dados.
-import { usersTableSim, tasksTableSim } from '../db/dbSimulator'
+import {
+  CreateTaskInput,
+  CreateUpdateCommentInput,
+  ParamsCommentSchema,
+  ParamsTaskSchema,
+  UpdateTaskInput,
+} from '../schemas/task.schema'
+import {
+  createComment,
+  createTask,
+  deleteComment,
+  deleteTask,
+  getCommentById,
+  getTaskById,
+  listComments,
+  listTasks,
+  updateComment,
+  updateTask,
+} from '../models/task.model'
+import { sendNotification } from '../middlewares/send-notification.middleware'
+import { errorHandler } from '../middlewares/error-handling.middleware'
 
-// Tipos para os corpos e parâmetros (sem alterações aqui)
-interface CreateTaskBody {
-  title: string
-  description: string
-  status: TaskStatus
-  assigned_to: string
-}
-interface UpdateTaskBody {
-  title?: string
-  description?: string
-  status?: TaskStatus
-}
-interface CommentBody {
-  comment: string
-}
-interface UserPayload {
-  user_id: string
-}
-interface TaskParams {
-  task_id: string
-}
-interface CommentParams extends TaskParams {
-  comment_id: string
-}
-
-// --- Task Handlers (O código dos handlers permanece o mesmo) ---
+// --- Task Handlers ---
 
 export async function createTaskHandler(
-  req: FastifyRequest<{ Body: CreateTaskBody }>,
+  req: FastifyRequest,
   rep: FastifyReply,
 ) {
-  const { title, description, status, assigned_to } = req.body
-
-  const userExists = usersTableSim.find(
-    (u) => u.user_id === assigned_to && !u.is_deleted,
-  )
-  if (!userExists) {
-    return rep.status(400).send({ message: 'Assigned user not found' })
+  try {
+    const data = req.body as CreateTaskInput
+    const createdTask = await createTask(req.loggedUser.user_id, data)
+    sendNotification(req.loggedUser.email, 'task_create', {
+      task_name: createdTask.title,
+    })
+    return rep.status(201).send(createdTask)
+  } catch (error) {
+    const treatedError = errorHandler(error)
+    return rep
+      .status(treatedError.status)
+      .send({ message: treatedError.message })
   }
-
-  const task: TaskSchema = {
-    task_id: randomUUID(),
-    title,
-    description,
-    status,
-    assigned_to,
-  }
-
-  tasksTableSim.push(task)
-  return rep.status(201).send(task)
 }
 
-// ... todos os seus outros handlers (get, update, delete, etc.) continuam aqui ...
+export async function listTasksHandler(req: FastifyRequest, rep: FastifyReply) {
+  try {
+    const { assigned_to } = req.query as {
+      assigned_to: string
+    }
+    const tasks = await listTasks(assigned_to)
+    return rep.status(200).send(tasks)
+  } catch (error) {
+    const treatedError = errorHandler(error)
+    return rep
+      .status(treatedError.status)
+      .send({ message: treatedError.message })
+  }
+}
+
+export async function getTaskHandler(req: FastifyRequest, rep: FastifyReply) {
+  try {
+    const { task_id } = req.params as ParamsTaskSchema
+    const task = await getTaskById(task_id)
+    return rep.status(201).send(task)
+  } catch (error) {
+    const treatedError = errorHandler(error)
+    return rep
+      .status(treatedError.status)
+      .send({ message: treatedError.message })
+  }
+}
+
+export async function updateTaskHandler(
+  req: FastifyRequest,
+  rep: FastifyReply,
+) {
+  try {
+    const { task_id } = req.params as ParamsTaskSchema
+    const data = req.body as Partial<UpdateTaskInput>
+    const updatedTask = await updateTask(task_id, data)
+    sendNotification(req.loggedUser.email, 'task_update', {
+      task_name: updatedTask.title,
+    })
+    return rep.status(200).send(updatedTask)
+  } catch (error) {
+    const treatedError = errorHandler(error)
+    return rep
+      .status(treatedError.status)
+      .send({ message: treatedError.message })
+  }
+}
+
 export async function deleteTaskHandler(
-  req: FastifyRequest<{ Params: TaskParams }>,
+  req: FastifyRequest,
   rep: FastifyReply,
 ) {
-  const { task_id } = req.params
-  const taskIndex = tasksTableSim.findIndex((t) => t.task_id === task_id)
-
-  if (taskIndex === -1) {
-    return rep.status(404).send({ message: 'Task not found' })
+  try {
+    const { task_id } = req.params as ParamsTaskSchema
+    const deletedTask = await deleteTask(task_id)
+    sendNotification(req.loggedUser.email, 'task_deleted', {
+      task_name: deletedTask.title,
+    })
+    return rep.status(200).send({ message: 'Task deleted successfully!' })
+  } catch (error) {
+    const treatedError = errorHandler(error)
+    return rep
+      .status(treatedError.status)
+      .send({ message: treatedError.message })
   }
-
-  tasksTableSim.splice(taskIndex, 1)
-  return rep.status(204).send()
 }
 
-// ... etc. para todos os outros handlers ...
+// --- Comments Handlers ---
+
+export async function createCommentHandler(
+  req: FastifyRequest,
+  rep: FastifyReply,
+) {
+  try {
+    const { task_id } = req.params as ParamsCommentSchema
+    const data = req.body as CreateUpdateCommentInput
+    const createdComment = await createComment(
+      task_id,
+      req.loggedUser.user_id,
+      data,
+    )
+    const onTask = await getTaskById(task_id)
+    sendNotification(req.loggedUser.email, 'task_comment_create', {
+      user_name: req.loggedUser.name,
+      task_name: onTask.title,
+    })
+    return rep.status(201).send(createdComment)
+  } catch (error) {
+    const treatedError = errorHandler(error)
+    return rep
+      .status(treatedError.status)
+      .send({ message: treatedError.message })
+  }
+}
+
+export async function listCommentsHandler(
+  req: FastifyRequest,
+  rep: FastifyReply,
+) {
+  const { task_id } = req.params as ParamsCommentSchema
+  const comments = await listComments(task_id)
+  return rep.status(200).send(comments)
+}
+
+export async function getCommentHandler(
+  req: FastifyRequest,
+  rep: FastifyReply,
+) {
+  try {
+    const { comment_id } = req.params as ParamsCommentSchema
+    const comment = await getCommentById(comment_id)
+    return rep.status(201).send(comment)
+  } catch (error) {
+    const treatedError = errorHandler(error)
+    return rep
+      .status(treatedError.status)
+      .send({ message: treatedError.message })
+  }
+}
+
+export async function updateCommentHandler(
+  req: FastifyRequest,
+  rep: FastifyReply,
+) {
+  try {
+    const { task_id, comment_id } = req.params as ParamsCommentSchema
+    const data = req.body as Partial<CreateUpdateCommentInput>
+    const updatedComment = await updateComment(comment_id, data)
+    const onTask = await getTaskById(task_id)
+    sendNotification(req.loggedUser.email, 'task_comment_updated', {
+      task_name: onTask.title,
+    })
+    return rep.status(200).send(updatedComment)
+  } catch (error) {
+    const treatedError = errorHandler(error)
+    return rep
+      .status(treatedError.status)
+      .send({ message: treatedError.message })
+  }
+}
+
+export async function deleteCommentHandler(
+  req: FastifyRequest,
+  rep: FastifyReply,
+) {
+  try {
+    const { task_id, comment_id } = req.params as ParamsCommentSchema
+    await deleteComment(comment_id)
+    const onTask = await getTaskById(task_id)
+    sendNotification(req.loggedUser.email, 'task_comment_deleted', {
+      task_name: onTask.title,
+    })
+    return rep.status(200).send({ message: 'Comment deleted successfully!' })
+  } catch (error) {
+    const treatedError = errorHandler(error)
+    return rep
+      .status(treatedError.status)
+      .send({ message: treatedError.message })
+  }
+}

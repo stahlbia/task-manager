@@ -10,11 +10,11 @@ import fastifySwagger from '@fastify/swagger'
 import fastifySwaggerUi from '@fastify/swagger-ui'
 // import { knex } from './database'
 
-import { userRoutes } from './routes/users.routes'
+import { userRoutes } from './routes/user.routes'
 import open from 'open'
 import FastifyJwt from '@fastify/jwt'
 import { authRoutes } from './routes/auth.routes'
-import { taskRoutes } from './routes/tasks.routes'
+import { taskRoutes } from './routes/task.routes'
 import { env } from './env'
 // import { errorHandling } from './middlewares/error-handling.middleware'
 
