@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { LoginInput, LogoutInput } from '../schemas/auth.schema'
-import { usersTableSim } from '../db/db'
+import { usersTableSim } from '../db/dbSimulator'
 import { compare } from 'bcrypt'
 import { env } from '../env'
 

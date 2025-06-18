@@ -7,7 +7,7 @@ import {
   logoutHandler,
   isTokenBlacklisted,
 } from '../../src/controllers/auth.controller'
-import { usersTableSim } from '../../src/db/db'
+import { usersTableSim } from '../../src/db/dbSimulator'
 import { compare } from 'bcrypt'
 import { JWT } from '@fastify/jwt'
 

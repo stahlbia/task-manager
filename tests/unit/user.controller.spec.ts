@@ -4,7 +4,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { createUserHandler } from '../../src/controllers/user.controller'
 import { UserSchema } from '../../src/schemas/user.schema'
-import { usersTableSim } from '../../src/db/db'
+import { usersTableSim } from '../../src/db/dbSimulator'
 import { hash } from 'bcrypt'
 import { randomUUID } from 'node:crypto'
 

@@ -4,7 +4,7 @@ import { FastifyRequest, FastifyReply } from 'fastify'
 import { randomUUID } from 'node:crypto'
 import { TaskSchema, TaskStatus } from '../schemas/tasks.schema'
 // CORREÇÃO: Importando as tabelas da nova fonte central de dados.
-import { usersTableSim, tasksTableSim } from '../db/db'
+import { usersTableSim, tasksTableSim } from '../db/dbSimulator'
 
 // Tipos para os corpos e parâmetros (sem alterações aqui)
 interface CreateTaskBody {

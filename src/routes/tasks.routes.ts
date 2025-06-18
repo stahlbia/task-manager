@@ -2,7 +2,7 @@ import z from 'zod'
 import { FastifyTypeInstance } from '../utils/types.utils'
 import { randomUUID } from 'node:crypto'
 import { taskSchema, TaskSchema } from '../schemas/tasks.schema'
-import { commentsTableSim, tasksTableSim, usersTableSim } from '../db/db'
+import { commentsTableSim, tasksTableSim, usersTableSim } from '../db/dbSimulator'
 import { ensureAuthenticated } from '../middlewares/auth-handling.middleware'
 import { sendNotification } from '../middlewares/send-notification.middleware'
 

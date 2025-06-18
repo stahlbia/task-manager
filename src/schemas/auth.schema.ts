@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { userSchema } from './user.schema'
+import { completeUserSchema } from './user.schema'
 
 export const loginSchema = z.object({
   email: z
@@ -15,7 +15,7 @@ export type LoginInput = z.infer<typeof loginSchema>
 
 export const loginResponseSchema = z.object({
   accessToken: z.string(),
-  user: userSchema.omit({ password: true }),
+  user: completeUserSchema.omit({ password: true }),
 })
 
 export type LoginResponse = z.infer<typeof loginResponseSchema>

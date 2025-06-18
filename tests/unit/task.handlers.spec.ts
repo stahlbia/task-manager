@@ -11,7 +11,7 @@ import { UserSchema } from '../../src/schemas/user.schema'
 import { TaskSchema } from '../../src/schemas/tasks.schema'
 
 // 3. CORREÇÃO: Importe as TABELAS de simulação do seu novo arquivo de banco de dados
-import { usersTableSim, tasksTableSim } from '../../src/db/db'
+import { usersTableSim, tasksTableSim } from '../../src/db/dbSimulator'
 
 describe('Task Handlers (Unit Tests)', () => {
   let mockRequest: Partial<FastifyRequest>

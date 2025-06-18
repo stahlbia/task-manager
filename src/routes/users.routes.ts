@@ -1,68 +1,22 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import z from 'zod'
 import { FastifyTypeInstance } from '../utils/types.utils'
-import { randomUUID } from 'node:crypto'
 import {
   createUserSchema,
-  userSchema,
-  UserSchema,
   updateUserSchema,
+  userWithoutSensitiveInfoSchema,
+  userParamSchema,
 } from '../schemas/user.schema'
-import bcrypt from 'bcrypt'
-import { createUserHandler } from '../controllers/user.controller'
+import {
+  createUserHandler,
+  deleteUserHandler,
+  getUserHandler,
+  listUsersHandler,
+  updateUserHandler,
+} from '../controllers/user.controller'
 import { ensureAuthenticated } from '../middlewares/auth-handling.middleware'
-import { sendNotification } from '../middlewares/send-notification.middleware'
-import { usersTableSim } from '../db/db'
-
-const SALT_ROUNDS = 10
 
 export async function userRoutes(app: FastifyTypeInstance) {
-  app.get(
-    '/users',
-    {
-      schema: {
-        tags: ['users'],
-        description: 'List users',
-        response: {
-          200: z.array(userSchema.omit({ password: true })),
-        },
-      },
-      preHandler: ensureAuthenticated,
-    },
-    () => {
-      return usersTableSim
-        .filter((u) => !u.is_deleted)
-        .map(({ password, ...rest }) => rest) // soft delete
-    },
-  )
-
-  app.get(
-    '/users/:user_id',
-    {
-      schema: {
-        tags: ['users'],
-        description: 'Get an user by ID',
-        params: z.object({ user_id: z.string() }),
-        response: {
-          200: userSchema.omit({ password: true }),
-          404: z.object({ message: z.string() }).describe('User not found'),
-        },
-      },
-      preHandler: ensureAuthenticated,
-    },
-    async (req, rep) => {
-      const { user_id } = req.params
-      const user = usersTableSim.find(
-        (u) => u.user_id === user_id && !u.is_deleted,
-      )
-
-      if (!user) return rep.status(404).send({ message: 'User not found' })
-
-      const { password, ...userWithoutPassowrd } = user
-      return rep.send(userWithoutPassowrd)
-    },
-  )
-
   app.post(
     '/users',
     {
@@ -71,7 +25,8 @@ export async function userRoutes(app: FastifyTypeInstance) {
         description: 'Create a new user',
         body: createUserSchema,
         response: {
-          201: userSchema.omit({ password: true }).describe('Created user'),
+          201: userWithoutSensitiveInfoSchema.describe('Created user'),
+          401: z.object({ message: z.string() }).describe('Unauthorized'),
           409: z
             .object({ message: z.string() })
             .describe('User already exists'),
@@ -84,48 +39,69 @@ export async function userRoutes(app: FastifyTypeInstance) {
     createUserHandler,
   )
 
+  app.get(
+    '/users',
+    {
+      schema: {
+        tags: ['users'],
+        description: 'List users',
+        response: {
+          200: z
+            .array(userWithoutSensitiveInfoSchema)
+            .describe('Get all users in activity'),
+          401: z.object({ message: z.string() }).describe('Unauthorized'),
+        },
+      },
+      preHandler: ensureAuthenticated,
+    },
+    listUsersHandler,
+  )
+
+  app.get(
+    '/users/:user_id',
+    {
+      schema: {
+        tags: ['users'],
+        description: 'Get an user by ID',
+        params: userParamSchema,
+        response: {
+          200: userWithoutSensitiveInfoSchema.describe(
+            'User return successfully',
+          ),
+          401: z.object({ message: z.string() }).describe('Unauthorized'),
+          404: z.object({ message: z.string() }).describe('User not found'),
+          500: z
+            .object({ message: z.string() })
+            .describe('Internal server error'),
+        },
+      },
+      preHandler: ensureAuthenticated,
+    },
+    getUserHandler,
+  )
+
   app.put(
     '/users/:user_id',
     {
       schema: {
         tags: ['users'],
         description: 'Update a user',
-        params: z.object({
-          user_id: z.string(),
-        }),
+        params: userParamSchema,
         body: updateUserSchema,
         response: {
-          200: userSchema.omit({ password: true }),
+          200: userWithoutSensitiveInfoSchema.describe(
+            'User updated successfully',
+          ),
+          401: z.object({ message: z.string() }).describe('Unauthorized'),
           404: z.object({ message: z.string() }).describe('User not found'),
+          500: z
+            .object({ message: z.string() })
+            .describe('Internal server error'),
         },
       },
       preHandler: ensureAuthenticated,
     },
-    async (req, rep) => {
-      const { user_id } = req.params as { user_id: string }
-      const {
-        name,
-        email,
-        password: newPassword,
-      } = req.body as Partial<UserSchema>
-
-      const user = usersTableSim.find(
-        (u) => u.user_id === user_id && !u.is_deleted,
-      )
-      if (!user) {
-        return rep.status(404).send({ message: 'User not found' })
-      }
-
-      if (name) user.name = name
-      if (email) user.email = email
-      if (newPassword)
-        user.password = await bcrypt.hash(newPassword, SALT_ROUNDS)
-
-      sendNotification(user.email, 'user_update')
-
-      const { password: _, ...userWithoutPassword } = user
-      return rep.send(userWithoutPassword)
-    },
+    updateUserHandler,
   )
 
   app.delete(
@@ -134,31 +110,20 @@ export async function userRoutes(app: FastifyTypeInstance) {
       schema: {
         tags: ['users'],
         description: 'Soft delete a user',
-        params: z.object({
-          user_id: z.string(),
-        }),
+        params: userParamSchema,
         response: {
-          204: z.null(),
+          200: z
+            .object({ message: z.string() })
+            .describe('User deleted successfully'),
+          401: z.object({ message: z.string() }).describe('Unauthorized'),
           404: z.object({ message: z.string() }).describe('User not found'),
+          500: z
+            .object({ message: z.string() })
+            .describe('Internal server error'),
         },
       },
       preHandler: ensureAuthenticated,
     },
-    async (req, rep) => {
-      const { user_id } = req.params as { user_id: string }
-      const user = usersTableSim.find(
-        (u) => u.user_id === user_id && !u.is_deleted,
-      )
-
-      if (!user) {
-        return rep.status(404).send({ message: 'User not found' })
-      }
-
-      user.is_deleted = true
-
-      sendNotification(user.email, 'user_delete')
-      
-      return rep.status(204).send()
-    },
+    deleteUserHandler,
   )
 }

@@ -1,7 +1,7 @@
 import request from 'supertest'
 import { describe, it, expect, beforeEach } from 'vitest'
 import { buildApp } from './setup'
-import { usersTableSim, tasksTableSim } from '../src/db/db'
+import { usersTableSim, tasksTableSim } from '../src/db/dbSimulator'
 
 describe('Task routes', () => {
   beforeEach(() => {
