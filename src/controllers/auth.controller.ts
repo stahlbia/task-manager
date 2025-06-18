@@ -1,49 +1,33 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { FastifyReply, FastifyRequest } from 'fastify'
-import { LoginInput, LogoutInput } from '../schemas/auth.schema'
-import { usersTableSim } from '../db/db'
-import { compare } from 'bcrypt'
-import { env } from '../env'
+import { LoginInput } from '../schemas/auth.schema'
+import { login, logout } from '../models/auth.model'
+import { errorHandler } from '../middlewares/error-handling.middleware'
 
-// In-memory blacklist
-const tokenBlacklist = new Set<string>()
+export async function loginHandler(req: FastifyRequest, rep: FastifyReply) {
+  try {
+    const { email, password } = req.body as LoginInput
+    const { payload, user } = await login(email, password)
+    const token = req.jwt.sign(payload)
 
-export async function loginHandler(
-  req: FastifyRequest<{ Body: LoginInput }>,
-  rep: FastifyReply,
-) {
-  const { email, password } = req.body
-
-  const user = await usersTableSim.find((user) => user.email === email)
-  const isMatch = user && (await compare(password, user.password))
-  if (!user || !isMatch) {
-    return rep.status(401).send({ message: 'invalid email or password' })
+    return rep.status(201).send({ accessToken: token, user })
+  } catch (error) {
+    const treatedError = errorHandler(error)
+    return rep
+      .status(treatedError.status)
+      .send({ message: treatedError.message })
   }
-
-  const payload = {
-    id: user.user_id,
-    expiresIn: env.EXPIRES_IN,
-  }
-  const token = req.jwt.sign(payload)
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { password: _, ...userWithoutPassword } = user
-  return rep.status(201).send({ accessToken: token, user: userWithoutPassword })
 }
 
-export async function logoutHandler(
-  req: FastifyRequest<{ Body: LogoutInput }>,
-  rep: FastifyReply,
-) {
-  const token = req.headers.authorization
-  if (!token) {
-    return rep.status(400).send({ message: 'User not logged in' })
+export async function logoutHandler(req: FastifyRequest, rep: FastifyReply) {
+  try {
+    const token = req.headers.authorization
+    await logout(token)
+    return rep.status(201).send({ message: 'User logged out successfully' })
+  } catch (error) {
+    const treatedError = errorHandler(error)
+    return rep
+      .status(treatedError.status)
+      .send({ message: treatedError.message })
   }
-
-  tokenBlacklist.add(token)
-
-  return rep.status(201).send({ message: 'User logged out successfully' })
-}
-
-export function isTokenBlacklisted(token: string): boolean {
-  return tokenBlacklist.has(token)
 }

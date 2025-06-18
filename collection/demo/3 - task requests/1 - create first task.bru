@@ -1,0 +1,22 @@
+meta {
+  name: 1 - create first task
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://{{task-manager.com}}/api/v1/tasks
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "title": "task1",
+    "status": "pending"
+  }
+}
+
+vars:post-response {
+  first_task_id: res.body.task_id
+}

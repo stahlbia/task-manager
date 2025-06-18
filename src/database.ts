@@ -8,7 +8,7 @@ export const config: Knex.Config = {
   },
   useNullAsDefault: true, // Required for SQLite
   migrations: {
-    extension: 'js', // Use TypeScript for migrations
+    extension: 'ts', // Use TypeScript for migrations
     directory: './src/db/migrations', // Your chosen directory for migration files
   },
 }

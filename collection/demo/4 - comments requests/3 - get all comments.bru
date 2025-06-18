@@ -1,0 +1,11 @@
+meta {
+  name: 3 - get all comments
+  type: http
+  seq: 3
+}
+
+get {
+  url: http://{{task-manager.com}}/api/v1/tasks/{{first_task_id}}/comments
+  body: none
+  auth: none
+}

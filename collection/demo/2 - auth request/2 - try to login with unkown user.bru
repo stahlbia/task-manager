@@ -1,0 +1,18 @@
+meta {
+  name: 2 - try to login with unkown user
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://{{task-manager.com}}/api/v1/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "unkown@gmail.com",
+    "password": "password123"
+  }
+}

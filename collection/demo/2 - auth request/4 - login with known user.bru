@@ -1,0 +1,22 @@
+meta {
+  name: 4 - login with known user
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://{{task-manager.com}}/api/v1/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "user1@gmail.com",
+    "password": "password123"
+  }
+}
+
+vars:post-response {
+  accessToken: res.body.accessToken
+}

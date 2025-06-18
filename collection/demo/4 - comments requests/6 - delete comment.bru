@@ -1,0 +1,11 @@
+meta {
+  name: 6 - delete comment
+  type: http
+  seq: 6
+}
+
+delete {
+  url: http://{{task-manager.com}}/api/v1/tasks/{{first_task_id}}/comments/{{second_comment_id}}
+  body: none
+  auth: none
+}

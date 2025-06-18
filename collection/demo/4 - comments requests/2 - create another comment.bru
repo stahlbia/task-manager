@@ -1,0 +1,21 @@
+meta {
+  name: 2 - create another comment
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://{{task-manager.com}}/api/v1/tasks/{{first_task_id}}/comments
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "content": "this is my second comment"
+  }
+}
+
+vars:post-response {
+  second_comment_id: res.body.comment_id
+}

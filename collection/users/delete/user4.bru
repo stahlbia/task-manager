@@ -5,11 +5,7 @@ meta {
 }
 
 delete {
-  url: http://localhost:3333/api/v1/users/{{user_id_4}}
+  url: http://{{task-manager.com}}/api/v1/users/{{user_id_4}}
   body: none
   auth: none
-}
-
-headers {
-  authorization: {{accessToken}}
 }

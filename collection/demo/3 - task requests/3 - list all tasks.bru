@@ -1,0 +1,15 @@
+meta {
+  name: 3 - list all tasks
+  type: http
+  seq: 3
+}
+
+get {
+  url: http://{{task-manager.com}}/api/v1/tasks?assigned_to={{first_user_id}}
+  body: none
+  auth: none
+}
+
+params:query {
+  assigned_to: {{first_user_id}}
+}

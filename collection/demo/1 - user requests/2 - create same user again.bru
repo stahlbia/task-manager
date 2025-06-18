@@ -1,0 +1,19 @@
+meta {
+  name: 2 - create same user again
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://{{task-manager.com}}/api/v1/users
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "user1",
+    "email": "user1@gmail.com",
+    "password": "password123"
+  }
+}

@@ -136,4 +136,4 @@ dist
 .pnp.*
 
 # sqlite3
-.src/db/app.db
+src/db/app.db

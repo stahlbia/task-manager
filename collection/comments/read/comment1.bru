@@ -1,0 +1,15 @@
+meta {
+  name: comment1
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://{{task-manager.com}}/api/v1/tasks/{{task_id_1}}/comments/7e39163e-ee1f-4ed6-96ef-c25ee998c2df
+  body: none
+  auth: none
+}
+
+vars:post-response {
+  comment_id_1: res.body.comment_id
+}

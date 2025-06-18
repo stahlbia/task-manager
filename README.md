@@ -2,14 +2,18 @@
 
 ## Objetivo
 
-Desenvolver uma API para um sistema de Gestão de Tarefas Colaborativas, permitindo que usuários criem, editem, atribuam e concluam tarefas. A API seguirá uma arquitetura MVC, garantindo boas práticas.
+Desenvolver uma API para um sistema de Gestão de Tarefas Colaborativas, permitindo que usuários criem, editem, atribuam e concluam tarefas. A API seguirá uma arquitetura MVC, e `implementará duas features adicionais como comentários em tarefas e sistema de notificação conforme os itens são atualizado`.
 
 ## Pre-requisitos
+
+### Alternativa 1
 
 - [node](https://nodejs.org/en/download)
 - [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 
-### Instalação alternativa
+- [eslint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) - optional
+
+### Alternativa 2
 
 Instalar o [nvm](https://github.com/nvm-sh/nvm)
 
@@ -38,10 +42,10 @@ cd <project_name>
 npm install
 ```
 
-Build and run
+Run project
 
 ``` sh
-npm start
+npm run start
 ```
 
 ## Arquitetura: MVC
@@ -54,7 +58,7 @@ project-root/
 ├── docs/                               # Arquivos utilizados na documentação, como imagens
 │
 ├── src/
-│   ├── controllers/                    # Lógica dos endpoints HTTP
+│   ├── controllers/                    # Lógica dos endpoints HTTP (Handlers)
 │   │   ├── auth.controller.ts
 │   │   ├── task.controller.ts
 │   │   └── user.controller.ts
@@ -65,66 +69,67 @@ project-root/
 │   │   └── user.routes.ts
 │
 │   ├── schemas/                        # Validação e tipagem com Zod
-│   │   └── auth.schema.ts
+│   │   ├── auth.schema.ts
 │   │   ├── task.schema.ts
 │   │   ├── user.schema.ts
 │
-│   ├── models/                         # Mapeamento de dados (ORM ou SQL)
+│   ├── models/                         # Funções com implementação no banco
 │   │   ├── task.model.ts
 │   │   ├── user.model.ts
 │   │   └── comment.model.ts
 │
-│   ├── services/                       # Regras de negócio (camada intermediária)
-│   │   ├── task.service.ts
-│   │   ├── user.service.ts
-│   │   ├── auth.service.ts
-│   │   └── notification.service.ts     # Novo serviço para envio de notificações por e-mail
-│
-│   ├── notifications/                  # Lógica de envio de e-mails (integração com SMTP, Mailgun, etc)
-│   │   ├── emailClient.ts              # Configuração do transporte de e-mails (nodemailer, etc)
-│   │   └── templates/                  # Templates de e-mail (HTML/TXT)
-│   │       ├── taskUpdated.html
-│   │       └── welcomeUser.html
-│
 │   ├── db/                             # Conexão com o banco (PostgreSQL)
-│   │   ├── client.ts
+│   │   ├── app.db                      # Criado quando roda a build
 │   │   └── migrations/
 │
 │   ├── middlewares/                    # Autenticação, erros, permissões
 │   │   ├── auth.middleware.ts
 │   │   └── error.middleware.ts
 │
-│   ├── plugins/                        # Plugins do Fastify (CORS, JWT, etc)
-│   │   ├── auth.plugin.ts
-│   │   ├── swagger.plugin.ts
-│   │   └── zod.plugin.ts
-│
-│   ├── openapi/                        # Arquivos OpenAPI/Swagger
-│   │   └── openapi.yaml
+│   ├── plugins/                        # Plugins utilizados
+│   │   ├── send-notification.plugin.ts
+│   │   ├── templates
+│   │   │   └── notification.templates.json
 │
 │   ├── utils/                          # Helpers, formatação, tokens, etc.
-│   │   ├── jwt.ts
-│   │   └── formatDate.ts
+│   │   └── types.utils.ts
+│
+│   └── database.ts                     # Configurações do database
 │
 │   └── server.ts                       # Inicia o servidor
 │
 ├── tests/                              # Testes com Jest
 │   ├── unit/
-│   │   ├── task.service.test.ts
-│   │   └── notification.service.test.ts
-│   └── integration/
-│       └── task.routes.test.ts
+│   │   ├── auth.spec.ts
+│   │   ├── task.spec.ts
+│   │   └── user.spec.ts
+│   ├── integration/
+│   │   ├── auth.spec.ts
+│   │   ├── task.spec.ts
+│   │   └── user.spec.ts
+│   └── setup.ts                        # Configurações de um app do Fastify para os tests
 │
 ├── .env
-├── tsconfig.json
-├── jest.config.ts
+├── .env.example
+├── .eslintrc.json
+├── .gitignore
+├── knexfile.ts
+├── package-lock.json
 ├── package.json
-└── README.md
+├── README.md
+├── tsconfig.json
+└── vitest.config.ts
 ```
 
 ## Estrutura do Banco de Dados
 
 ![alt text](docs/images/db-logic.png)
+
+O seguinte comando cria o banco de dados no local
+
+```sh
+npm run knex -- migrate:latest
+```
 
 ## Stack do Projeto
 
@@ -142,32 +147,20 @@ Framework web focado em performance e baixo consumo de recursos, ideal para cria
 
 ### 🧪 Zod
 
-Biblioteca de validação de dados com foco em **tipagem integrada ao TypeScript**, usada para validar entradas da API (body, params, query) e gerar schemas reutilizáveis.
+Biblioteca de validação de dados com foco em tipagem integrada ao TypeScript, usada para validar entradas da API (body, params, query) e gerar schemas reutilizáveis.
 
 ### 📚 Swagger
 
 Ferramenta de documentação automática da API, permitindo que os endpoints sejam visualizados e testados via navegador com base nos schemas definidos em Zod.
 
-### 🐘 PostgreSQL
+### 🗄️ SQLite 3
 
-Banco de dados relacional robusto, usado para persistir dados de forma segura, escalável e confiável. Ideal para sistemas com múltiplas entidades e relacionamentos.
+Banco de dados relacional leve e embutido, ideal para aplicações de pequeno a médio porte. Utilizado por sua simplicidade, portabilidade e zero configuração, permitindo armazenamento local eficiente e confiável.
 
-### ✅ Jest
+### 🧪 Vitest
 
-Framework de testes em JavaScript/TypeScript, utilizado para escrever e executar testes automatizados garantindo o funcionamento correto das funcionalidades da API.
+Framework de testes rápido e moderno, inspirado no Jest, com suporte nativo a TypeScript e integração perfeita com bibliotecas como Vite. Ideal para escrever e executar testes unitários e de integração
 
 ### 🔒 Bcrypt
 
 Biblioteca para hashing de senhas, utilizada para garantir a segurança das credenciais dos usuários, protegendo-as contra acessos não autorizados.
-
-## User's Happy Paths
-
-1. Criar uma conta
-2. Fazer login
-3. Criar uma tarefa com o nome "Entregar trabalho da faculadade"
-4. Verificar a lista de tarefas
-5. Adicionar um comentário na tarefa criada que diz "Focar na parte teórica"
-6. Atualizar o status da tarefa para "in progress"
-7. Adicionar outro comentário na tarefa dizendo "Focar na parte prática"
-8. Atualizar o status da tarefa para "done"
-9. Fazer logout do sistema

@@ -1,0 +1,17 @@
+meta {
+  name: 5 - update comment
+  type: http
+  seq: 5
+}
+
+put {
+  url: http://{{task-manager.com}}/api/v1/tasks/{{first_task_id}}/comments/{{first_comment_id}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "content": "this is not my first comment anymore"
+  }
+}
