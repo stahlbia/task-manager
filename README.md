@@ -6,10 +6,12 @@ Desenvolver uma API para um sistema de Gestão de Tarefas Colaborativas, permiti
 
 ## Pre-requisitos
 
+### Alternativa 1
+
 - [node](https://nodejs.org/en/download)
 - [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 
-### Instalação alternativa
+### Alternativa 2
 
 Instalar o [nvm](https://github.com/nvm-sh/nvm)
 
@@ -41,7 +43,11 @@ npm install
 Build and run
 
 ``` sh
-npm start
+npm run build
+```
+
+``` sh
+npm run start
 ```
 
 ## Arquitetura: MVC
@@ -74,18 +80,6 @@ project-root/
 │   │   ├── user.model.ts
 │   │   └── comment.model.ts
 │
-│   ├── services/                       # Regras de negócio (camada intermediária)
-│   │   ├── task.service.ts
-│   │   ├── user.service.ts
-│   │   ├── auth.service.ts
-│   │   └── notification.service.ts     # Novo serviço para envio de notificações por e-mail
-│
-│   ├── notifications/                  # Lógica de envio de e-mails (integração com SMTP, Mailgun, etc)
-│   │   ├── emailClient.ts              # Configuração do transporte de e-mails (nodemailer, etc)
-│   │   └── templates/                  # Templates de e-mail (HTML/TXT)
-│   │       ├── taskUpdated.html
-│   │       └── welcomeUser.html
-│
 │   ├── db/                             # Conexão com o banco (PostgreSQL)
 │   │   ├── client.ts
 │   │   └── migrations/
@@ -95,16 +89,13 @@ project-root/
 │   │   └── error.middleware.ts
 │
 │   ├── plugins/                        # Plugins do Fastify (CORS, JWT, etc)
-│   │   ├── auth.plugin.ts
-│   │   ├── swagger.plugin.ts
-│   │   └── zod.plugin.ts
-│
-│   ├── openapi/                        # Arquivos OpenAPI/Swagger
-│   │   └── openapi.yaml
+│   │   ├── templates
+│   │   │   └── notification.templates.json
 │
 │   ├── utils/                          # Helpers, formatação, tokens, etc.
-│   │   ├── jwt.ts
-│   │   └── formatDate.ts
+│   │   └── types.utils.ts
+│
+│   └── database.ts                     # Configurações do database
 │
 │   └── server.ts                       # Inicia o servidor
 │
@@ -112,14 +103,19 @@ project-root/
 │   ├── unit/
 │   │   ├── task.service.test.ts
 │   │   └── notification.service.test.ts
-│   └── integration/
-│       └── task.routes.test.ts
+│   ├── integration/
+│   │   └── task.routes.test.ts
 │
 ├── .env
-├── tsconfig.json
-├── jest.config.ts
+├── .env.example
+├── .eslintrc.json
+├── .gitignore
+├── knexfile.ts
+├── package-lock.json
 ├── package.json
-└── README.md
+├── README.md
+├── tsconfig.json
+└── vitest.config.ts
 ```
 
 ## Estrutura do Banco de Dados
@@ -142,19 +138,19 @@ Framework web focado em performance e baixo consumo de recursos, ideal para cria
 
 ### 🧪 Zod
 
-Biblioteca de validação de dados com foco em **tipagem integrada ao TypeScript**, usada para validar entradas da API (body, params, query) e gerar schemas reutilizáveis.
+Biblioteca de validação de dados com foco em tipagem integrada ao TypeScript, usada para validar entradas da API (body, params, query) e gerar schemas reutilizáveis.
 
 ### 📚 Swagger
 
 Ferramenta de documentação automática da API, permitindo que os endpoints sejam visualizados e testados via navegador com base nos schemas definidos em Zod.
 
-### 🐘 PostgreSQL
+### 🗄️ SQLite 3
 
-Banco de dados relacional robusto, usado para persistir dados de forma segura, escalável e confiável. Ideal para sistemas com múltiplas entidades e relacionamentos.
+Banco de dados relacional leve e embutido, ideal para aplicações de pequeno a médio porte. Utilizado por sua simplicidade, portabilidade e zero configuração, permitindo armazenamento local eficiente e confiável.
 
-### ✅ Jest
+### 🧪 Vitest
 
-Framework de testes em JavaScript/TypeScript, utilizado para escrever e executar testes automatizados garantindo o funcionamento correto das funcionalidades da API.
+Framework de testes rápido e moderno, inspirado no Jest, com suporte nativo a TypeScript e integração perfeita com bibliotecas como Vite. Ideal para escrever e executar testes unitários e de integração
 
 ### 🔒 Bcrypt
 

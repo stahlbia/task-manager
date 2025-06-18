@@ -1,4 +1,4 @@
-import { FastifyTypeInstance } from '../utils/types'
+import { FastifyTypeInstance } from '../utils/types.utils'
 import {
   loginSchema,
   loginResponseSchema,

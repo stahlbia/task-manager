@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import z from 'zod'
-import { FastifyTypeInstance } from '../utils/types'
+import { FastifyTypeInstance } from '../utils/types.utils'
 import { randomUUID } from 'node:crypto'
 import {
   createUserSchema,
