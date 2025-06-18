@@ -1,4 +1,4 @@
-import notificationTemplates from '../plugins/templates/notification.templates.json'
+import notificationTemplates from './templates/notification.templates.json'
 
 type NotificationTemplate = {
   type: string
@@ -12,7 +12,7 @@ export function sendNotification(to: string, type: string, data?: object) {
   ) as NotificationTemplate
   if (!template) {
     console.error(
-      `{ [NOTIFICATION SERVICE] Notification type ${type} not found. }`,
+      `\x1b[31m{ [NOTIFICATION SERVICE] Notification type ${type} not found. }\x1b[0m`,
     )
   }
 

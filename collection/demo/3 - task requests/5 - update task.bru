@@ -1,0 +1,17 @@
+meta {
+  name: 5 - update task
+  type: http
+  seq: 5
+}
+
+put {
+  url: http://{{task-manager.com}}/api/v1/tasks/{{first_task_id}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "status": "in_progress"
+  }
+}

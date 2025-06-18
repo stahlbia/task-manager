@@ -1,0 +1,19 @@
+meta {
+  name: 7 - update one user
+  type: http
+  seq: 7
+}
+
+put {
+  url: http://{{task-manager.com}}/api/v1/users/{{first_user_id}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "user1 edited name",
+    "email": "user1@gmail.com",
+    "password": "password123"
+  }
+}

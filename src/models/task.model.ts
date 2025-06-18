@@ -32,7 +32,7 @@ export async function createTask(
 }
 
 export async function listTasks(user_id: string): Promise<TaskSchema[] | null> {
-  const tasks = await knex('tasks').where('user_id', user_id).select('*')
+  const tasks = await knex('tasks').where('assigned_to', user_id).select('*')
   const transformedTasks = tasks.map((t) => ({
     ...t,
     updated_at: new Date(t.updated_at),

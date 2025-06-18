@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Desenvolver uma API para um sistema de Gestão de Tarefas Colaborativas, permitindo que usuários criem, editem, atribuam e concluam tarefas. A API seguirá uma arquitetura MVC, garantindo boas práticas.
+Desenvolver uma API para um sistema de Gestão de Tarefas Colaborativas, permitindo que usuários criem, editem, atribuam e concluam tarefas. A API seguirá uma arquitetura MVC, e implementará duas features adicionais como comentários em tarefas e sistema de notificação conforme os itens são atualizados.
 
 ## Pre-requisitos
 
@@ -10,6 +10,8 @@ Desenvolver uma API para um sistema de Gestão de Tarefas Colaborativas, permiti
 
 - [node](https://nodejs.org/en/download)
 - [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+
+- [eslint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) - optional
 
 ### Alternativa 2
 
@@ -40,11 +42,7 @@ cd <project_name>
 npm install
 ```
 
-Build and run
-
-``` sh
-npm run build
-```
+Run project
 
 ``` sh
 npm run start
@@ -60,7 +58,7 @@ project-root/
 ├── docs/                               # Arquivos utilizados na documentação, como imagens
 │
 ├── src/
-│   ├── controllers/                    # Lógica dos endpoints HTTP
+│   ├── controllers/                    # Lógica dos endpoints HTTP (Handlers)
 │   │   ├── auth.controller.ts
 │   │   ├── task.controller.ts
 │   │   └── user.controller.ts
@@ -71,24 +69,25 @@ project-root/
 │   │   └── user.routes.ts
 │
 │   ├── schemas/                        # Validação e tipagem com Zod
-│   │   └── auth.schema.ts
+│   │   ├── auth.schema.ts
 │   │   ├── task.schema.ts
 │   │   ├── user.schema.ts
 │
-│   ├── models/                         # Mapeamento de dados (ORM ou SQL)
+│   ├── models/                         # Funções com implementação no banco
 │   │   ├── task.model.ts
 │   │   ├── user.model.ts
 │   │   └── comment.model.ts
 │
 │   ├── db/                             # Conexão com o banco (PostgreSQL)
-│   │   ├── client.ts
+│   │   ├── app.db                      # Criado quando roda a build
 │   │   └── migrations/
 │
 │   ├── middlewares/                    # Autenticação, erros, permissões
 │   │   ├── auth.middleware.ts
 │   │   └── error.middleware.ts
 │
-│   ├── plugins/                        # Plugins do Fastify (CORS, JWT, etc)
+│   ├── plugins/                        # Plugins utilizados
+│   │   ├── send-notification.plugin.ts
 │   │   ├── templates
 │   │   │   └── notification.templates.json
 │
@@ -101,10 +100,14 @@ project-root/
 │
 ├── tests/                              # Testes com Jest
 │   ├── unit/
-│   │   ├── task.service.test.ts
-│   │   └── notification.service.test.ts
+│   │   ├── auth.spec.ts
+│   │   ├── task.spec.ts
+│   │   └── user.spec.ts
 │   ├── integration/
-│   │   └── task.routes.test.ts
+│   │   ├── auth.spec.ts
+│   │   ├── task.spec.ts
+│   │   └── user.spec.ts
+│   └── setup.ts                        # Configurações de um app do Fastify para os tests
 │
 ├── .env
 ├── .env.example
@@ -121,6 +124,12 @@ project-root/
 ## Estrutura do Banco de Dados
 
 ![alt text](docs/images/db-logic.png)
+
+O seguinte comando cria o banco de dados no local
+
+```sh
+npm run knex -- migrate:latest
+```
 
 ## Stack do Projeto
 
@@ -167,3 +176,43 @@ Biblioteca para hashing de senhas, utilizada para garantir a segurança das cred
 7. Adicionar outro comentário na tarefa dizendo "Focar na parte prática"
 8. Atualizar o status da tarefa para "done"
 9. Fazer logout do sistema
+
+## Roteiro para demo
+
+### Usuários
+
+- Criar um novo usuário
+- Tentar criar um usuário duplicado
+- Criar um segundo usuário
+- Listar todos os usuários criados
+- Pegar apenas um usuário
+- Editar uma informação em uma conta de usuário
+- Deletar um usuário extra
+
+## Autenticação
+
+- Tentar pegar a lista de usuários sem autenticação
+- Tentar autenticar com um usuário que não existe
+- Tentar fazer logout sem estar logado
+- Autenticar com o usuário que existe
+- Pegar a lista de usuários com autenticação
+- Fazer logout
+- Tentar pegar a lista de usuários sem autenticação
+
+### Tarefas
+
+- Criar uma tarefa
+- Criar uma segunda tarefa
+- Listar tarefas
+- Pegar uma tarefa pelo id
+- Editar uma informação em uma tarefa
+- Deletar uma tarefa
+
+## Comentários
+
+- Criar um comentário em uma tarefa
+- Criar um comentário em outra tarefa
+- Pegar todos os comentários
+- Pegar um comentário pelo id
+- Editar um comentário
+- Deletar um comentário

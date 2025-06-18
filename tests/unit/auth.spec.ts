@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { FastifyRequest, FastifyReply } from 'fastify'
 import * as userModel from '../../src/models/user.model'
-import * as notificationMiddleware from '../../src/middlewares/send-notification.middleware'
+import * as notificationMiddleware from '../../src/plugins/send-notification.plugin'
 import * as errorHandlingMiddleware from '../../src/middlewares/error-handling.middleware'
 import {
   createUserHandler,

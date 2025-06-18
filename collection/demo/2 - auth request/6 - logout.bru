@@ -1,17 +1,19 @@
 meta {
-  name: logout
+  name: 6 - logout
   type: http
-  seq: 2
+  seq: 6
 }
 
 post {
   url: http://{{task-manager.com}}/api/v1/logout
-  body: none
+  body: json
   auth: none
 }
 
+headers {
+  Content-Type: application/json
+}
+
 body:json {
-  {
-    "user_id": "{{user_id_1}}"
-  }
+  {}
 }

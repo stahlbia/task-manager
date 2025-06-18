@@ -34,7 +34,7 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "start": "tsx src/server.ts",
-    "build": "npm run migrate:latest & npm run lint & npm run test:unit & npm run test:integration",
+    "build": "npm run migrate:latest",
     "lint": "eslint src --ext .ts",
     "test": "vitest",
     "test:unit": "vitest --dir tests/unit",

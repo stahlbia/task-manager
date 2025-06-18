@@ -1,0 +1,11 @@
+meta {
+  name: 6 - delete second task
+  type: http
+  seq: 6
+}
+
+delete {
+  url: http://{{task-manager.com}}/api/v1/tasks/{{second_task_id}}
+  body: none
+  auth: none
+}

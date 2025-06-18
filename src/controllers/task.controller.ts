@@ -18,7 +18,7 @@ import {
   updateComment,
   updateTask,
 } from '../models/task.model'
-import { sendNotification } from '../middlewares/send-notification.middleware'
+import { sendNotification } from '../plugins/send-notification.plugin'
 import { errorHandler } from '../middlewares/error-handling.middleware'
 
 // --- Task Handlers ---

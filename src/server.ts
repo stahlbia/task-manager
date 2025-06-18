@@ -8,7 +8,6 @@ import {
 } from 'fastify-type-provider-zod'
 import fastifySwagger from '@fastify/swagger'
 import fastifySwaggerUi from '@fastify/swagger-ui'
-// import { knex } from './database'
 
 import { userRoutes } from './routes/user.routes'
 import open from 'open'
@@ -16,13 +15,11 @@ import FastifyJwt from '@fastify/jwt'
 import { authRoutes } from './routes/auth.routes'
 import { taskRoutes } from './routes/task.routes'
 import { env } from './env'
-// import { errorHandling } from './middlewares/error-handling.middleware'
 
 const app = fastify().withTypeProvider<ZodTypeProvider>()
 
 app.setValidatorCompiler(validatorCompiler)
 app.setSerializerCompiler(serializerCompiler)
-// app.setErrorHandler(errorHandling)
 
 app.register(fastifyCors, { origin: '*' })
 
@@ -54,5 +51,5 @@ app.addHook('preHandler', (req, res, next) => {
 
 app.listen({ port: 3333 }).then(() => {
   console.log('HTTP server running!')
-  open('http://localhost:3333/docs')
+  // open('http://localhost:3333/docs')
 })

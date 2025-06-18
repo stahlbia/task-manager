@@ -1,0 +1,19 @@
+meta {
+  name: 3 - try to logout without user
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://{{task-manager.com}}/api/v1/logout
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {}
+}

@@ -4,7 +4,7 @@ import {
   UpdateUserInput,
   ParamsUserSchema,
 } from '../schemas/user.schema'
-import { sendNotification } from '../middlewares/send-notification.middleware'
+import { sendNotification } from '../plugins/send-notification.plugin'
 import {
   createUser,
   deleteUser,
