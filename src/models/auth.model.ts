@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { compare, hash } from 'bcrypt'
-import { usersTableSim } from '../db/dbSimulator'
 import { env } from '../env'
 import { TokenPayload } from '../schemas/auth.schema'
 import { UserWithoutSensitiveInfoSchema } from '../schemas/user.schema'
