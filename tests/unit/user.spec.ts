@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { FastifyRequest, FastifyReply } from 'fastify'
 import * as userModel from '../../src/models/user.model'
-import * as notificationMiddleware from '../../src/plugins/send-notification.plugin'
+import * as notificationPlugin from '../../src/plugins/send-notification.plugin'
 import * as errorHandlingMiddleware from '../../src/middlewares/error-handling.middleware'
 import {
   createUserHandler,
@@ -45,7 +45,7 @@ describe('User Handlers (Unit Tests)', () => {
       await createUserHandler(mockRequest, mockReply)
 
       expect(userModel.createUser).toHaveBeenCalledWith(mockRequest.body)
-      expect(notificationMiddleware.sendNotification).toHaveBeenCalledWith(
+      expect(notificationPlugin.sendNotification).toHaveBeenCalledWith(
         'test@example.com',
         'user_created',
         { user_name: 'Test User' },
@@ -139,7 +139,7 @@ describe('User Handlers (Unit Tests)', () => {
       expect(userModel.updateUser).toHaveBeenCalledWith('user123', {
         name: 'Updated User',
       })
-      expect(notificationMiddleware.sendNotification).toHaveBeenCalledWith(
+      expect(notificationPlugin.sendNotification).toHaveBeenCalledWith(
         'test@example.com',
         'user_update',
       )
@@ -164,7 +164,7 @@ describe('User Handlers (Unit Tests)', () => {
       await deleteUserHandler(mockRequest, mockReply)
 
       expect(userModel.deleteUser).toHaveBeenCalledWith('user123')
-      expect(notificationMiddleware.sendNotification).toHaveBeenCalledWith(
+      expect(notificationPlugin.sendNotification).toHaveBeenCalledWith(
         'test@example.com',
         'user_delete',
       )

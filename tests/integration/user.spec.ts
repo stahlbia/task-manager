@@ -1,12 +1,15 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { buildApp } from '../setup'
 import * as userModel from '../../src/models/user.model'
-
-let app: any
+import * as notificationPlugin from '../../src/plugins/send-notification.plugin'
+import { FastifyInstance } from 'fastify'
 
 vi.mock('../../src/models/user.model')
+vi.mock('../../src/plugins/send-notification.plugin')
 
 describe('User Handlers (Integration Tests)', () => {
+  let app: FastifyInstance
+
   beforeEach(async () => {
     app = await buildApp()
     vi.clearAllMocks()
@@ -42,6 +45,11 @@ describe('User Handlers (Integration Tests)', () => {
         email: 'test@example.com',
         password: 'password123',
       })
+      expect(notificationPlugin.sendNotification).toHaveBeenCalledWith(
+        'test@example.com',
+        'user_created',
+        { user_name: 'Test User' },
+      )
     })
 
     it('should return an error if the user already exists', async () => {

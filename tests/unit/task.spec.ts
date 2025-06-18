@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { FastifyRequest, FastifyReply } from 'fastify'
 import * as taskModel from '../../src/models/task.model'
-import * as notificationMiddleware from '../../src/plugins/send-notification.plugin'
+import * as notificationPlugin from '../../src/plugins/send-notification.plugin'
 import * as errorHandlingMiddleware from '../../src/middlewares/error-handling.middleware'
 import {
   createTaskHandler,
@@ -41,7 +41,7 @@ describe('Task Handlers (Unit Tests)', () => {
         'user123',
         mockRequest.body,
       )
-      expect(notificationMiddleware.sendNotification).toHaveBeenCalledWith(
+      expect(notificationPlugin.sendNotification).toHaveBeenCalledWith(
         'user@example.com',
         'task_create',
         { task_name: 'Test Task' },
@@ -125,7 +125,7 @@ describe('Task Handlers (Unit Tests)', () => {
       expect(taskModel.updateTask).toHaveBeenCalledWith('task123', {
         title: 'Updated Task',
       })
-      expect(notificationMiddleware.sendNotification).toHaveBeenCalledWith(
+      expect(notificationPlugin.sendNotification).toHaveBeenCalledWith(
         'user@example.com',
         'task_update',
         { task_name: 'Updated Task' },
@@ -148,7 +148,7 @@ describe('Task Handlers (Unit Tests)', () => {
       await deleteTaskHandler(mockRequest, mockReply)
 
       expect(taskModel.deleteTask).toHaveBeenCalledWith('task123')
-      expect(notificationMiddleware.sendNotification).toHaveBeenCalledWith(
+      expect(notificationPlugin.sendNotification).toHaveBeenCalledWith(
         'user@example.com',
         'task_deleted',
         { task_name: 'Deleted Task' },
