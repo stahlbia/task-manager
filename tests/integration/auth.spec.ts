@@ -1,26 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { buildApp } from '../setup'
 import * as authModel from '../../src/models/auth.model'
-import { login, logout, isTokenBlacklisted } from '../../src/models/auth.model'
-import { UserWithoutSensitiveInfoSchema } from '../../src/schemas/user.schema'
 import { FastifyInstance } from 'fastify'
-import { loginHandler } from '../../src/controllers/auth.controller'
+import { mockPayload, mockUser1, simulateAuth } from './test.utils'
 
 vi.mock('../../src/models/user.model')
-
-const mockJwt = {
-  sign: vi.fn(),
-  verify: vi.fn(),
-}
-
-mockJwt.sign.mockReturnValue('mocked.jwt.token')
-
-function simulateAuth(tokenPayload: object) {
-  const token = 'mocked.jwt.token'
-  mockJwt.sign.mockReturnValue(token)
-  mockJwt.verify.mockReturnValue(tokenPayload)
-  return token
-}
 
 describe('Auth Routes (Integration Tests)', () => {
   let app: FastifyInstance
@@ -35,23 +19,8 @@ describe('Auth Routes (Integration Tests)', () => {
   })
 
   describe('POST /login', () => {
-    it('should be able to login with known user', async () => {
-      const mockUser: UserWithoutSensitiveInfoSchema = {
-        user_id: 'b38b27d7-96b3-4ee5-ba99-441f58011bd4',
-        name: 'Test User 1',
-        email: 'test@example.com',
-        is_deleted: false,
-        updated_at: new Date(),
-        created_at: new Date(),
-      }
-      const mockPayload = {
-        user_id: 'b38b27d7-96b3-4ee5-ba99-441f58011bd4',
-        expiresIn: '10min',
-      }
-      vi.spyOn(authModel, 'login').mockResolvedValue({
-        payload: mockPayload,
-        user: mockUser,
-      })
+    it('should return 201 when known user logs in', async () => {
+      await simulateAuth(app, mockUser1, mockPayload)
 
       const response = await app.inject({
         method: 'POST',
@@ -65,7 +34,7 @@ describe('Auth Routes (Integration Tests)', () => {
       expect(response.statusCode).toBe(201)
     })
 
-    it('should not be able to login with unknown user', async () => {
+    it('should return 409 when unknown user logs in', async () => {
       vi.spyOn(authModel, 'login').mockRejectedValue(
         Error('Invalid credentials'),
       )
@@ -83,43 +52,30 @@ describe('Auth Routes (Integration Tests)', () => {
   })
 
   describe('POST /logout', () => {
-    it('should be able to logout when there is a user logged in', async () => {
-      const mockUser: UserWithoutSensitiveInfoSchema = {
-        user_id: 'b38b27d7-96b3-4ee5-ba99-441f58011bd4',
-        name: 'Test User 1',
-        email: 'test@example.com',
-        is_deleted: false,
-        updated_at: new Date(),
-        created_at: new Date(),
-      }
-      const mockPayload = {
-        user_id: 'b38b27d7-96b3-4ee5-ba99-441f58011bd4',
-        expiresIn: '10min',
-      }
-      vi.spyOn(authModel, 'login').mockResolvedValue({
-        payload: mockPayload,
-        user: mockUser,
-      })
-      vi.spyOn(authModel, 'logout').mockResolvedValue()
+    it('should return 201 when a user is logginout', async () => {
+      const accessToken = await simulateAuth(app, mockUser1, mockPayload)
 
-      const responseLogin = await app.inject({
-        method: 'POST',
-        url: '/api/v1/login',
-        payload: {
-          email: 'test@example.com',
-          password: 'password123',
-        },
-      })
+      vi.spyOn(authModel, 'logout').mockResolvedValue()
 
       const response = await app.inject({
         method: 'POST',
         url: '/api/v1/logout',
-        headers: { authorization: responseLogin.accessToken },
+        headers: { authorization: accessToken },
       })
-      console.log(response)
+
       expect(response.statusCode).toBe(201)
     })
 
-    it('should not be able to logout when there isn`t a user logged in', async () => {})
+    it('should return 401 when a user loggedout not being loggedin', async () => {
+      vi.spyOn(authModel, 'logout').mockResolvedValue()
+
+      const response = await app.inject({
+        method: 'POST',
+        url: '/api/v1/logout',
+        headers: { authorization: 'my-fake-token' },
+      })
+
+      expect(response.statusCode).toBe(401)
+    })
   })
 })

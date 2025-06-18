@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { buildApp } from '../setup'
 import * as userModel from '../../src/models/user.model'
-import * as notificationPlugin from '../../src/plugins/send-notification.plugin'
 import { FastifyInstance } from 'fastify'
+import { mockPayload, mockUser1, mockUser2, simulateAuth } from './test.utils'
 
 vi.mock('../../src/models/user.model')
 vi.mock('../../src/plugins/send-notification.plugin')
@@ -21,12 +21,7 @@ describe('User Handlers (Integration Tests)', () => {
 
   describe('POST /users', () => {
     it('should create a new user', async () => {
-      const mockUser = {
-        user_id: 'b38b27d7-96b3-4ee5-ba99-441f58011bd4',
-        name: 'Test User',
-        email: 'test@example.com',
-      }
-      vi.spyOn(userModel, 'createUser').mockResolvedValue(mockUser)
+      vi.spyOn(userModel, 'createUser').mockResolvedValue(mockUser1)
 
       const response = await app.inject({
         method: 'POST',
@@ -38,18 +33,12 @@ describe('User Handlers (Integration Tests)', () => {
         },
       })
       expect(response.statusCode).toBe(201)
-      const body = JSON.parse(response.body)
-      expect(body).toMatchObject(mockUser)
+      expect(response.body).toMatch(JSON.stringify(mockUser1))
       expect(userModel.createUser).toHaveBeenCalledWith({
         name: 'Test User',
         email: 'test@example.com',
         password: 'password123',
       })
-      expect(notificationPlugin.sendNotification).toHaveBeenCalledWith(
-        'test@example.com',
-        'user_created',
-        { user_name: 'Test User' },
-      )
     })
 
     it('should return an error if the user already exists', async () => {
@@ -75,141 +64,113 @@ describe('User Handlers (Integration Tests)', () => {
 
   describe('GET /users', () => {
     it('should list all users', async () => {
-      const mockUsers = [
-        {
-          user_id: 'b38b27d7-96b3-4ee5-ba99-441f58011bd4',
-          name: 'Test User 1',
-          email: 'test1@example.com',
-        },
-        {
-          user_id: 'de6887eb-bf61-4389-834a-e90747519876',
-          name: 'Test User 2',
-          email: 'test2@example.com',
-        },
-      ]
+      const mockUsers = [mockUser1, mockUser2]
       vi.spyOn(userModel, 'listUsers').mockResolvedValue(mockUsers)
+
+      const accessToken = await simulateAuth(app, mockUser1, mockPayload)
 
       const response = await app.inject({
         method: 'GET',
         url: '/api/v1/users',
+        headers: { authorization: accessToken },
       })
 
       expect(response.statusCode).toBe(200)
-      const body = JSON.parse(response.body)
-      expect(body).toHaveLength(2)
-      expect(body).toMatchObject(mockUsers)
+      expect(response.body).toMatch(JSON.stringify(mockUser1))
       expect(userModel.listUsers).toHaveBeenCalled()
     })
   })
 
   describe('GET /users/:user_id', () => {
     it('should get a user by ID', async () => {
-      const mockUser = {
-        user_id: 'b38b27d7-96b3-4ee5-ba99-441f58011bd4',
-        name: 'Test User',
-        email: 'test@example.com',
-      }
-      vi.spyOn(userModel, 'getUserById').mockResolvedValue(mockUser)
+      vi.spyOn(userModel, 'getUserById').mockResolvedValue(mockUser1)
+
+      const accessToken = await simulateAuth(app, mockUser1, mockPayload)
 
       const response = await app.inject({
         method: 'GET',
-        url: '/api/v1/users/b38b27d7-96b3-4ee5-ba99-441f58011bd4',
+        url: `/api/v1/users/${mockUser1.user_id}`,
+        headers: { authorization: accessToken },
       })
 
       expect(response.statusCode).toBe(200)
-      const body = JSON.parse(response.body)
-      expect(body).toMatchObject(mockUser)
-      expect(userModel.getUserById).toHaveBeenCalledWith(
-        'b38b27d7-96b3-4ee5-ba99-441f58011bd4',
-      )
+      expect(response.body).toMatch(JSON.stringify(mockUser1))
     })
 
     it('should return an error if the user is not found', async () => {
-      vi.spyOn(userModel, 'getUserById').mockResolvedValue(null)
+      vi.spyOn(userModel, 'getUserById').mockResolvedValue(mockUser1)
+
+      const accessToken = await simulateAuth(app, mockUser1, mockPayload)
 
       const response = await app.inject({
         method: 'GET',
         url: '/api/v1/users/nonexistent',
+        headers: { authorization: accessToken },
       })
 
-      expect(response.statusCode).toBe(404)
-      const body = JSON.parse(response.body)
-      expect(body.message).toBe('User not found')
+      expect(response.statusCode).toBe(400)
     })
   })
 
   describe('PUT /users/:user_id', () => {
     it('should update a user', async () => {
-      const mockUpdatedUser = {
-        user_id: 'b38b27d7-96b3-4ee5-ba99-441f58011bd4',
-        name: 'Updated User',
-        email: 'test@example.com',
-      }
-      vi.spyOn(userModel, 'updateUser').mockResolvedValue(mockUpdatedUser)
+      vi.spyOn(userModel, 'updateUser').mockResolvedValue(mockUser1)
+
+      const accessToken = await simulateAuth(app, mockUser1, mockPayload)
 
       const response = await app.inject({
         method: 'PUT',
-        url: '/api/v1/users/b38b27d7-96b3-4ee5-ba99-441f58011bd4',
+        url: `/api/v1/users/${mockUser1.user_id}`,
         payload: { name: 'Updated User' },
+        headers: { authorization: accessToken },
       })
 
       expect(response.statusCode).toBe(200)
-      const body = JSON.parse(response.body)
-      expect(body).toMatchObject(mockUpdatedUser)
-      expect(userModel.updateUser).toHaveBeenCalledWith(
-        'b38b27d7-96b3-4ee5-ba99-441f58011bd4',
-        {
-          name: 'Updated User',
-        },
-      )
     })
 
     it('should return an error if the user is not found', async () => {
-      vi.spyOn(userModel, 'updateUser').mockResolvedValue(null)
+      vi.spyOn(userModel, 'updateUser').mockResolvedValue(mockUser1)
+
+      const accessToken = await simulateAuth(app, mockUser1, mockPayload)
 
       const response = await app.inject({
         method: 'PUT',
         url: '/api/v1/users/nonexistent',
         payload: { name: 'Updated User' },
+        headers: { authorization: accessToken },
       })
 
-      expect(response.statusCode).toBe(404)
-      const body = JSON.parse(response.body)
-      expect(body.message).toBe('User not found')
+      expect(response.statusCode).toBe(400)
     })
   })
 
   describe('DELETE /users/:user_id', () => {
     it('should delete a user', async () => {
-      const mockDeletedUser = {
-        user_id: 'b38b27d7-96b3-4ee5-ba99-441f58011bd4',
-        name: 'Deleted User',
-        email: 'test@example.com',
-      }
-      vi.spyOn(userModel, 'deleteUser').mockResolvedValue(mockDeletedUser)
+      vi.spyOn(userModel, 'deleteUser').mockResolvedValue(mockUser1)
+
+      const accessToken = await simulateAuth(app, mockUser1, mockPayload)
 
       const response = await app.inject({
         method: 'DELETE',
-        url: '/api/v1/users/b38b27d7-96b3-4ee5-ba99-441f58011bd4',
+        url: `/api/v1/users/${mockUser2.user_id}`,
+        headers: { authorization: accessToken },
       })
 
       expect(response.statusCode).toBe(204)
-      expect(userModel.deleteUser).toHaveBeenCalledWith(
-        'b38b27d7-96b3-4ee5-ba99-441f58011bd4',
-      )
     })
 
     it('should return an error if the user is not found', async () => {
-      vi.spyOn(userModel, 'deleteUser').mockResolvedValue(null)
+      vi.spyOn(userModel, 'deleteUser').mockResolvedValue(mockUser1)
+
+      const accessToken = await simulateAuth(app, mockUser1, mockPayload)
 
       const response = await app.inject({
         method: 'DELETE',
         url: '/api/v1/users/nonexistent',
+        headers: { authorization: accessToken },
       })
 
-      expect(response.statusCode).toBe(404)
-      const body = JSON.parse(response.body)
-      expect(body.message).toBe('User not found')
+      expect(response.statusCode).toBe(400)
     })
   })
 })

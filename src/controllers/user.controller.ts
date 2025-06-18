@@ -41,7 +41,7 @@ export async function getUserHandler(req: FastifyRequest, rep: FastifyReply) {
   try {
     const { user_id } = req.params as ParamsUserSchema
     const user = await getUserById(user_id)
-    return rep.status(201).send(user)
+    return rep.status(200).send(user)
   } catch (error) {
     const treatedError = errorHandler(error)
     return rep
